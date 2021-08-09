@@ -102,61 +102,17 @@ class InattentionTroubleTeacherViewSet(ViewSet):
         super().__init__(fields, serializer_class, service, **kwargs)
 
 
-behavior_trouble_teacher_list = BehaviorTroubleTeacherViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
-
-behavior_trouble_teacher_object = BehaviorTroubleTeacherViewSet.as_view({
-    'get': 'retreive',
-    'put': 'update',
-    'delete': 'delete'
-})
-
-impulsivity_trouble_teacher_list = ImpulsivityTroubleTeacherViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
-
-impulsivity_trouble_teacher_object = ImpulsivityTroubleTeacherViewSet.as_view({
-    'get': 'retreive',
-    'put': 'update',
-    'delete': 'delete'
-})
+behavior_trouble_teacher_list, behavior_trouble_teacher_object = BehaviorTroubleTeacherViewSet.get_urls()
 
 
-hyperactivity_trouble_teacher_list = HyperActivityTroubleTeacherViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
+impulsivity_trouble_teacher_list, impulsivity_trouble_teacher_object = ImpulsivityTroubleTeacherViewSet.get_urls()
 
-hyperactivity_trouble_teacher_object = HyperActivityTroubleTeacherViewSet.as_view({
-    'get': 'retreive',
-    'put': 'update',
-    'delete': 'delete'
-})
 
-extra_trouble_teacher_list = ExtraTroubleTeacherViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
+hyperactivity_trouble_teacher_list, hyperactivity_trouble_teacher_object = HyperActivityTroubleTeacherViewSet.get_urls()
 
-extra_trouble_teacher_object = ExtraTroubleTeacherViewSet.as_view({
-    'get': 'retreive',
-    'put': 'update',
-    'delete': 'delete'
-})
+extra_trouble_teacher_list, extra_trouble_teacher_object = ExtraTroubleTeacherViewSet.get_urls()
 
-inattention_trouble_teacher_list = InattentionTroubleTeacherViewSet.as_view({
-    'get': 'list',
-    'post': 'create'
-})
-
-inattention_trouble_teacher_object = InattentionTroubleTeacherViewSet.as_view({
-    'get': 'retreive',
-    'put': 'update',
-    'delete': 'delete'
-})
+inattention_trouble_teacher_list, inattention_trouble_teacher_object = InattentionTroubleTeacherViewSet.get_urls()
 
 urlpatterns = [
     path('behavior_trouble_teacher_list', behavior_trouble_teacher_list),

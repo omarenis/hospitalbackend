@@ -23,6 +23,14 @@ def extract_data_with_validation(request, fields: dict):
     return output
 
 
+def extract_get_data(request, fields: dict):
+    output = {}
+    for i in fields:
+        if request.GET.get(i) is not None:
+            output[i] = request.GET.get(i)
+    return output
+
+
 class ViewSet(ModelViewSet):
     def __init__(self, fields: dict, serializer_class, service, **kwargs):
         super().__init__(**kwargs)
@@ -31,8 +39,9 @@ class ViewSet(ModelViewSet):
         self.service = service
 
     def list(self, request, *args, **kwargs):
-        _objects = self.service.filter_by(request.GET) if request.GET else self.service.list()
-        print(_objects)
+        print(request.GET is None)
+        _objects = self.service.filter_by(extract_get_data(request, self.fields)) if request.GET is not None \
+            else self.service.list()
         if not _objects:
             return Response(data=[], status=HTTP_200_OK)
         return Response(data=[self.serializer_class(i).data for i in _objects], status=HTTP_200_OK)

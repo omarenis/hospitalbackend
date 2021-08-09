@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from common.models import text_field
 from common.repositories import Repository
@@ -83,6 +84,9 @@ class PatientViewSet(ViewSet):
         if fields is None:
             fields = PATIENT_FIELDS
         super().__init__(fields, serializer_class, service, **kwargs)
+
+    def get_permissions(self):
+        return [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         data = {}
