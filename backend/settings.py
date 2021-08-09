@@ -21,7 +21,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'kAb55BSKW=ev?vu-9GzP3Lke*&*7rt8#5XzRvtvSzKVa9C#J!MPE%DJ#7=-TjYQ%^SLr=uvNJ8ff-PgYpsfhdv5mRf*KzvkF%Y5mu' \
              '*9TZrz@Q5QwHYJs@9T*DrqPUAgjC8A3x&9#+tq+Cz-+&SM^$JVxq&vNs9zT#$YhVkaWtEk6y5M&EyfJK_SVVyNd!NrZ@#yA' \
@@ -79,6 +78,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
