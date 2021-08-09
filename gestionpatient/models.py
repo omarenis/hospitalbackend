@@ -1,5 +1,8 @@
-from django.db.models import CASCADE, DateField, EmailField, ForeignKey, Model, SET_DEFAULT, SET_NULL, TextField
-from rest_framework.serializers import ModelSerializer
+from django.db.models import CASCADE, DateField, ForeignKey, Model, SET_NULL, TextField
+
+from common.models import create_model, create_model_serializer
+
+app_label = 'gestionpatient'
 
 
 class Patient(Model):
@@ -12,7 +15,7 @@ class Patient(Model):
 
     class Meta:
         db_table = 'patients'
-        unique_together = (('name', 'familyName'), )
+        unique_together = (('name', 'familyName'),)
 
 
 class Orientation(Model):
@@ -24,13 +27,15 @@ class Orientation(Model):
         db_table = 'orientations'
 
 
-class PatientSerializer(ModelSerializer):
-    class Meta:
-        model = Patient
-        fields = '__all__'
+Teacher = create_model(name='Teacher', type_model=Model, fields={
+    'name': TextField(), 'familyName': TextField(), 'cin': TextField(null=False, unique=True),
+    'telephone': TextField()
+}, app_label='gestionpatient', options={
+    'db_table': 'teacher'
+})
 
+OrientationSerializer = create_model_serializer(model=Orientation, name='orientationSerializer')
 
-class OrientationSerializer(ModelSerializer):
-    class Meta:
-        model = Orientation
-        fields = '__all__'
+PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializer', app_label=app_label)
+
+TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label='gestionpatient')

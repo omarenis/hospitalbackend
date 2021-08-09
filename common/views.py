@@ -31,7 +31,7 @@ class ViewSet(ModelViewSet):
         self.service = service
 
     def list(self, request, *args, **kwargs):
-        _objects = self.service.list()
+        _objects = self.service.filter_by(request.GET) if request.GET else self.service.list()
         if not _objects:
             return Response(data=[], status=HTTP_200_OK)
         return Response(data=[self.serializer_class(i).data for i in _objects], status=HTTP_200_OK)

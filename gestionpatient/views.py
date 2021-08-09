@@ -10,14 +10,21 @@ from formparent.services import AnxityTroubleParentService, BehaviorTroubleParen
     SomatisationTroubleParentService
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
-from gestionpatient.models import Orientation, OrientationSerializer, Patient, PatientSerializer
-from gestionusers.services import get_or_create_parent
+from .models import Orientation, OrientationSerializer, Patient, PatientSerializer, Teacher
 
 
-def add_other_data_to_patient(data: dict, service, _id):
+def add_other_data_to_patient(data: dict, service, patient_id, teacher_id=None):
     if data is not None:
-        data['patient_id'] = _id
-        _object = service.create(data=data)
+        print(data)
+        _object = service.filter_by({'teacher_id': teacher_id, 'patient_id': patient_id}).first() \
+            if teacher_id is not None else service.filter_by({'patient_id': patient_id}).first()
+        if _object:
+            _object = service.put(data=data, _id=_object.id)
+        else:
+            data['patient_id'] = patient_id
+            if teacher_id is not None:
+                data['teacher_id'] = teacher_id
+            _object = service.create(data=data)
         if isinstance(_object, Exception):
             raise _object
         else:
@@ -38,6 +45,18 @@ ORIENTATION_FIELDS = {
     'doctor_id': {'type': 'foreign_key', 'required': True},
     'diagnostic': text_field
 }
+
+TEACHER_FIELDS = {
+    'name': {'type': 'text', 'required': True},
+    'familyName': {'type': 'text', 'required': True},
+    'cin': {'type': 'text', 'required': True},
+    'telephone': {'type': 'text', 'required': True}
+}
+
+
+class TeacherRepository(Repository):
+    def __init__(self, model=Teacher):
+        super().__init__(model)
 
 
 class PatientRepository(Repository):
@@ -66,25 +85,17 @@ class PatientViewSet(ViewSet):
             fields = PATIENT_FIELDS
         super().__init__(fields, serializer_class, service, **kwargs)
 
-
     def create(self, request, *args, **kwargs):
-        if request.data.get('parent_id') is None:
-            parent_id = get_or_create_parent(request.data.get('parent'))
-            if isinstance(parent_id, Exception):
-                return Response(data={'error': str(parent_id)}, status=HTTP_400_BAD_REQUEST)
-        else:
-            parent_id = request.data.get('parent_id')
         data = {}
         created = False
         for i in list(self.fields.keys()):
             if request.data.get(i) is None and self.fields[i]['required']:
                 return Response(data={'error': f'field {i} is required'}, status=HTTP_400_BAD_REQUEST)
             data[i] = request.data.get(i)
-        data['parent_id'] = parent_id
+        data['parent_id'] = request.data.get('parent_id')
         patient_object = self.service.filter_by(data=data).first()
         if patient_object is None:
             patient_object = self.service.create(data)
-            print(patient_object)
             created = True
             if isinstance(patient_object, Exception):
                 raise patient_object
@@ -92,58 +103,59 @@ class PatientViewSet(ViewSet):
         try:
             add_other_data_to_patient(
                 data=request.data.get('behaviorTroubleParent'), service=BehaviorTroubleParentService(),
-                _id=patient_id
+                patient_id=patient_id, teacher_id=None
             )
             add_other_data_to_patient(
-                data=request.data.get('impulsivityTroubleParent'),
-                _id=patient_id, service=ImpulsivityTroubleParentService()
+                data=request.data.get('impulsivityTroubleParent'), service=ImpulsivityTroubleParentService(),
+                patient_id=patient_id, teacher_id=None
             )
             add_other_data_to_patient(data=request.data.get('learningTroubleParent'),
                                       service=LearningTroubleParentService(),
-                                      _id=patient_id)
+                                      patient_id=patient_id, teacher_id=None)
             add_other_data_to_patient(data=request.data.get('anxityTroubleParent'),
                                       service=AnxityTroubleParentService(),
-                                      _id=patient_id)
+                                      patient_id=patient_id, teacher_id=None)
             add_other_data_to_patient(
                 data=request.data.get('somatisationTroubleParent'),
-                service=SomatisationTroubleParentService(), _id=patient_id
+                service=SomatisationTroubleParentService(), patient_id=patient_id,
+                teacher_id=None
             )
             add_other_data_to_patient(
                 data=request.data.get('hyperActivityTroubleParent'),
-                service=HyperActivityTroubleParentService(), _id=patient_id
+                service=HyperActivityTroubleParentService(), patient_id=patient_id,
+                teacher_id=None
             )
             add_other_data_to_patient(data=request.data.get('extraTroubleParent'),
                                       service=ExtraTroubleParentService(),
-                                      _id=patient_id)
-            if request.data.get('behaviorTroubleTeacher_set'):
+                                      patient_id=patient_id,
+                                      teacher_id=None
+                                      )
+            if request.data.get('teacher_id'):
                 add_other_data_to_patient(
                     data=request.data.get('behaviorTroubleTeacher_set')[0],
                     service=BehaviorTroubleTeacherService(),
-                    _id=patient_id
+                    patient_id=patient_id,
+                    teacher_id=request.data.get('teacher_id')
                 )
-            if request.data.get('extraTroubleTeacher_set'):
                 add_other_data_to_patient(
                     data=request.data.get('extraTroubleTeacher_set')[0],
                     service=ExtraTroubleTeacherService(),
-                    _id=patient_id
+                    patient_id=patient_id, teacher_id=request.data.get('teacher_id')
                 )
-            if request.data.get('hyperActivityTeacher_set'):
                 add_other_data_to_patient(
                     data=request.data.get('hyperActivityTeacher_set')[0],
                     service=HyperActivityTroubleTeacherService(),
-                    _id=patient_id
+                    patient_id=patient_id, teacher_id=request.data.get('teacher_id')
                 )
-            if request.data.get('impulsivityTroubleTeacher_set'):
                 add_other_data_to_patient(
                     data=request.data.get('impulsivityTroubleTeacher_set')[0],
                     service=ImpulsivityTroubleTeacherService(),
-                    _id=patient_id
+                    patient_id=patient_id, teacher_id=request.data.get('teacher_id')
                 )
-            if request.data.get('inattentionTroubleTeacher_set'):
                 add_other_data_to_patient(
                     data=request.data.get('inattentionTroubleTeacher_set')[0],
                     service=InattentionTroubleTeacherService(),
-                    _id=patient_id
+                    patient_id=patient_id, teacher_id=request.data.get('teacher_id')
                 )
             return Response(data=self.serializer_class(patient_object).data, status=HTTP_201_CREATED)
         except Exception as exception:

@@ -64,7 +64,8 @@ has_learning_difficulties = {'hasLearningDifficulties': TextField(db_column='has
 
 FORM_FIELDS = {
     'patient': ForeignKey(null=False, on_delete=CASCADE, to=patient_model_location),
-    'score': FloatField(null=False)
+    'score': FloatField(null=False),
+    'teacher': ForeignKey(null=False, on_delete=CASCADE, to='gestionpatient.Teacher')
 }
 
 BEHAVIOR_TROUBLE_TEACHER_FIELDS = {
