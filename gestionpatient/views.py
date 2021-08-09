@@ -15,7 +15,6 @@ from .models import Orientation, OrientationSerializer, Patient, PatientSerializ
 
 def add_other_data_to_patient(data: dict, service, patient_id, teacher_id=None):
     if data is not None:
-        print(data)
         _object = service.filter_by({'teacher_id': teacher_id, 'patient_id': patient_id}).first() \
             if teacher_id is not None else service.filter_by({'patient_id': patient_id}).first()
         if _object:
