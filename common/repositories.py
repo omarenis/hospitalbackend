@@ -13,7 +13,7 @@ class Repository(object):
         return self.model.objects.get(id=_id)
 
     def put(self, _id: int, data: dict):
-        _object = self.model.objects.get(_id)
+        _object = self.model.objects.get(id=_id)
         if _object is None:
             return Exception('object not found')
         else:

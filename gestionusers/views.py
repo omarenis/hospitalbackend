@@ -5,10 +5,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from common.views import ViewSet
 from gestionusers.models import LocalisationSerializer, PersonSerializer
 from gestionusers.services import LocalisationService, PersonService
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 
 class LocalisationViewSet(ViewSet):
-
     def get_permissions(self):
         permission_classes = []
         if self.action == 'list':
@@ -41,7 +41,8 @@ class PersonViewSet(ViewSet):
                 'telephone': {'type': 'email', 'required': True},
                 'password': {'type': 'password', 'required': True},
                 'accountId': {'type': 'password', 'required': False},
-                'localisation_id': {'type': 'integer', 'required': False}
+                'localisation_id': {'type': 'integer', 'required': False},
+                'typeUser': {'type': 'text', 'required': True}
             }
         super().__init__(fields=fields, serializer_class=serializer_class, service=service, **kwargs)
         self.localisation_service = LocalisationService()
@@ -81,10 +82,12 @@ class PersonViewSet(ViewSet):
         })
 
     def signup(self, request, *args, **kwargs):
-        data = {}
-        localisation = self.localisation_service.filter_by(request.data.get('localisation'))
-        if localisation is None:
+        localisation = self.localisation_service.filter_by(request.data.get('localisation')).first()
+        if localisation is None or localisation == []:
             localisation = self.localisation_service.create(data=request.data.get('localisation'))
+            if isinstance(localisation, Exception):
+                return Response(data={'error': str(localisation)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        data = {}
         for i in self.fields:
             data[i] = request.data.get(i)
         data['localisation_id'] = localisation.id
