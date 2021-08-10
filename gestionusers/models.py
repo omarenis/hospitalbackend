@@ -11,17 +11,18 @@ LOCALISATION_FIELDS = {
     'delegation': TextField(null=False),
     'zipCode': TextField(null=False, db_column='zip_code')
 }
-Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALISATION_FIELDS, options={
-    'db_table': 'localisations',
-    'unique_together': ('governorate', 'delegation', 'zipCode')
-}, app_label='gestionusers')
+Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALISATION_FIELDS,
+                            options={
+                                'db_table': 'localisations',
+                                'unique_together': ('governorate', 'delegation', 'zipCode')
+                            },
+                            app_label='gestionusers')
 
 
 class UserManager(BaseUserManager):
-    def create(self, name, familyName, cin, telephone, email, typeUser, is_active, password=None):
-        data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone,
-                'email': self.normalize_email(email), 'accountId': None, 'is_active': is_active,
-                'password': password}
+    def create(self, name, familyName, cin, telephone, typeUser, is_active, email=None, password=None):
+        data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone, 'accountId': None,
+                'is_active': is_active, 'password': password, 'email': self.normalize_email(email) if email else email}
         try:
             if typeUser == 'parent':
                 user = Parent(**data)
@@ -29,7 +30,7 @@ class UserManager(BaseUserManager):
                 user = Doctor(**data)
             else:
                 raise AttributeError('user must be parent or doctor')
-            user.username = name + ' ' + familyName
+            user.username = name + ' ' + familyName + cin
             if is_active:
                 user.set_password(password)
             else:
@@ -46,7 +47,7 @@ class Person(AbstractUser):
     name: TextField = TextField(null=False)
     familyName: TextField = TextField(null=False, db_column='family_name')
     cin: CharField = CharField(max_length=255, null=False, unique=True)
-    email: EmailField = EmailField(null=False, unique=True)
+    email: EmailField = EmailField(null=True, unique=False)
     telephone: CharField = CharField(max_length=255, null=False, unique=True)
     password: TextField = TextField(null=True)
     accountId: TextField = TextField(null=True, db_column='account_id')
@@ -65,13 +66,11 @@ class PersonSerializer(ModelSerializer):
 
 
 class Parent(Person):
-
     class Meta:
         db_table = 'parents'
 
 
 class Doctor(Person):
-
     class Meta:
         db_table = 'doctors'
 
