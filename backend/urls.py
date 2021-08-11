@@ -25,7 +25,7 @@ def home(request, *args, **kwargs):
 urlpatterns = [
     path('', home),
     path('admin/', admin.site.urls),
-    path('users/', include('gestionusers.views')),
+    path('persons', include('gestionusers.views')),
     path('patients', include('gestionpatient.views')),
     path('patient/', include('formparent.views')),
     path('patient/', include('formteacher.views'))

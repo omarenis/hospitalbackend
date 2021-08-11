@@ -8,7 +8,8 @@ restless_squirms_chair = {'restlessSquirmsChair': TextField(db_column='restless_
 
 inappropriate_noises = {'inappropriateNoises': TextField(null=False, db_column='inappropriate_noises')}
 
-immediately_satisfied_needs = {'immediatelySatisfiedNeeds': TextField(db_column='immediately_satisfied_needs', null=False)}
+immediately_satisfied_needs = {'immediatelySatisfiedNeeds': TextField(db_column='immediately_satisfied_needs',
+                                                                      null=False)}
 
 arrogant_impolite = {'arrogantImpolite': TextField(db_column='arrogant_impolite', null=False)}
 
@@ -65,7 +66,7 @@ has_learning_difficulties = {'hasLearningDifficulties': TextField(db_column='has
 FORM_FIELDS = {
     'patient': ForeignKey(null=False, on_delete=CASCADE, to=patient_model_location),
     'score': FloatField(null=False),
-    'teacher': ForeignKey(null=False, on_delete=CASCADE, to='gestionpatient.Teacher')
+    'teacher': ForeignKey(null=False, on_delete=CASCADE, to='Teacher')
 }
 
 BEHAVIOR_TROUBLE_TEACHER_FIELDS = {
@@ -116,6 +117,13 @@ EXTRA_TROUBLE_TEACHER_FIELDS = {
     **trouble_integrating_with_other_students,
     **less_cooperate_with_others
 }
+Teacher = create_model(name='Teacher', type_model=Model, fields={
+    'name': TextField(), 'familyName': TextField(), 'cin': TextField(null=False, unique=True),
+    'telephone': TextField()
+}, app_label=app_label, options={
+    'db_table': 'teacher'
+})
+
 
 Form = create_model(name='Form', type_model=Model, fields=FORM_FIELDS, app_label=app_label, options={'abstract': True})
 BehaviorTroubleTeacher = create_model(name='BehaviorTroubleTeacher', type_model=Form, app_label=app_label,
@@ -143,3 +151,4 @@ ExtraTroubleTeacherSerializer = create_model_serializer(name='ExtraTroubleTeache
                                                         model=ExtraTroubleTeacher)
 InattentionTroubleTeacherSerializer = create_model_serializer(name='InattentionTroubleTeacherSerializer',
                                                               model=InattentionTroubleTeacher)
+TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)

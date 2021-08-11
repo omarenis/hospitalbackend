@@ -4,9 +4,17 @@ from common.models import text_field
 from common.views import FormViewSet, ViewSet
 from formteacher.models import BehaviorTroubleTeacherSerializer, ExtraTroubleTeacherSerializer, \
     HyperActivityTroubleTeacherSerializer, \
-    ImpulsivityTroubleTeacherSerializer, InattentionTroubleTeacherSerializer
+    ImpulsivityTroubleTeacherSerializer, InattentionTroubleTeacherSerializer, TeacherSerializer
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
-    HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
+    HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService, \
+    TeacherService
+
+TEACHER_FIELDS = {
+    'name': {'type': 'text', 'required': True},
+    'familyName': {'type': 'text', 'required': True},
+    'cin': {'type': 'text', 'required': True},
+    'telephone': {'type': 'text', 'required': True}
+}
 
 behavior_trouble_teacher_fields = {
     'immediatelySatisfiedNeeds': text_field,
@@ -102,6 +110,15 @@ class InattentionTroubleTeacherViewSet(ViewSet):
         super().__init__(fields, serializer_class, service, **kwargs)
 
 
+class TeacherViewSet(ViewSet):
+    def __init__(self, fields=None, serializer_class=TeacherSerializer, service=TeacherService(), **kwargs):
+        if fields is None:
+            fields = TEACHER_FIELDS
+        super().__init__(fields, serializer_class, service, **kwargs)
+
+
+teachers, teacher = TeacherViewSet.get_urls()
+
 behavior_trouble_teacher_list, behavior_trouble_teacher_object = BehaviorTroubleTeacherViewSet.get_urls()
 
 
@@ -124,5 +141,7 @@ urlpatterns = [
     path('extra_trouble_teacher_list', extra_trouble_teacher_list),
     path('extra_trouble_teacher_list/<int:id>', extra_trouble_teacher_object),
     path('inattention_trouble_teacher_list', inattention_trouble_teacher_list),
-    path('inattention_trouble_teacher_list/<int:id>', inattention_trouble_teacher_object)
+    path('inattention_trouble_teacher_list/<int:id>', inattention_trouble_teacher_object),
+    path('teachers', teachers),
+    path('teachers/:id', teacher)
 ]

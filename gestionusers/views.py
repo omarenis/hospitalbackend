@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_204_NO_CONTENT
 from rest_framework_simplejwt.tokens import RefreshToken
 from common.views import ViewSet
 from gestionusers.models import LocalisationSerializer, PersonSerializer
@@ -50,9 +50,9 @@ class PersonViewSet(ViewSet):
 
     def get_permissions(self):
         permission_classes = []
-        if self.action == 'list':
+        if self.action == 'list' or self.action == 'retreive':
             permission_classes.append(IsAdminUser)
-        elif self.action == 'retrieve' or self.action == 'logout':
+        elif self.action == 'logout':
             permission_classes.append(IsAuthenticated)
         elif self.action == 'signup' or self.action == 'login':
             permission_classes.append(AllowAny)
@@ -119,9 +119,9 @@ class PersonViewSet(ViewSet):
 
     @staticmethod
     def logout(request, *args, **kwargs):
-        token = RefreshToken(request.data.get('token').encode('utf-8'))
+        token = RefreshToken(request.data.get('refresh').encode('utf-8'))
         token.blacklist()
-        return None
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 users_list, user_retrieve_update_delete = PersonViewSet.get_urls()

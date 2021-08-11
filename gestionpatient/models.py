@@ -27,15 +27,6 @@ class Orientation(Model):
         db_table = 'orientations'
 
 
-Teacher = create_model(name='Teacher', type_model=Model, fields={
-    'name': TextField(), 'familyName': TextField(), 'cin': TextField(null=False, unique=True),
-    'telephone': TextField()
-}, app_label='gestionpatient', options={
-    'db_table': 'teacher'
-})
-
 OrientationSerializer = create_model_serializer(model=Orientation, name='orientationSerializer')
 
 PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializer', app_label=app_label)
-
-TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label='gestionpatient')

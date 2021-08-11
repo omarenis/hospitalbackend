@@ -1,6 +1,12 @@
-from common.services import FormService
+from common.services import FormService, Service
 from .repositories import BehaviorTroubleTeacherRepository, ExtraTroubleTeacherRepository, \
-    HyperActivityTroubleTeacherRepository, ImpulsivityTroubleTeacherRepository, InattentionTroubleTeacherRepository
+    HyperActivityTroubleTeacherRepository, ImpulsivityTroubleTeacherRepository, InattentionTroubleTeacherRepository, \
+    TeacherRepository
+
+
+class TeacherService(Service):
+    def __init__(self, repository=TeacherRepository()):
+        super().__init__(repository)
 
 
 class BehaviorTroubleTeacherService(FormService):

@@ -20,7 +20,7 @@ Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALI
 
 
 class UserManager(BaseUserManager):
-    def create(self, name, familyName, cin, telephone, typeUser, is_active, localisation_id, email=None, password=None):
+    def create(self, name, familyName, cin, telephone, typeUser, is_active=False, localisation_id=None, email=None, password=None):
         data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone, 'accountId': None,
                 'is_active': is_active, 'password': password, 'email': self.normalize_email(email) if email else email,
                 'localisation_id': localisation_id}

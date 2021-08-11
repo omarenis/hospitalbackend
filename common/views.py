@@ -9,7 +9,9 @@ from common.services import calculate_score
 
 def extract_data_with_validation(request, fields: dict):
     output = {}
-    attrs = list(request.data.keys()) + list(request.files.keys())
+    print(request.content_type)
+    attrs = list(request.data.keys())
+    attrs += list(request.files.keys()) if request.content_type != 'application/json' else []
     for i in set(attrs):
         if i in fields:
             value = request.files.get(i) if fields[i].get('type') == 'file' \
