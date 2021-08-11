@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
-from django.db.models import BooleanField, CharField, EmailField, Model, TextField
+from django.db.models import BooleanField, CharField, EmailField, ForeignKey, Model, SET_NULL, TextField
 from rest_framework.serializers import ModelSerializer
 import string
 import random
@@ -20,9 +20,10 @@ Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALI
 
 
 class UserManager(BaseUserManager):
-    def create(self, name, familyName, cin, telephone, typeUser, is_active, email=None, password=None):
+    def create(self, name, familyName, cin, telephone, typeUser, is_active, localisation_id, email=None, password=None):
         data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone, 'accountId': None,
-                'is_active': is_active, 'password': password, 'email': self.normalize_email(email) if email else email}
+                'is_active': is_active, 'password': password, 'email': self.normalize_email(email) if email else email,
+                'localisation_id': localisation_id}
         try:
             if typeUser == 'parent':
                 user = Parent(**data)
@@ -53,6 +54,7 @@ class Person(AbstractUser):
     accountId: TextField = TextField(null=True, db_column='account_id')
     is_active = BooleanField(null=False, default=False)
     typeUser: TextField = TextField(null=False)
+    localisation = ForeignKey(null=True, to=Localisation, on_delete=SET_NULL)
 
     class Meta:
         db_table = 'persons'

@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.status import HTTP_401_UNAUTHORIZED
 from rest_framework_simplejwt.tokens import RefreshToken
 from common.views import ViewSet
 from gestionusers.models import LocalisationSerializer, PersonSerializer
@@ -40,8 +41,9 @@ class PersonViewSet(ViewSet):
                 'email': {'type': 'email', 'required': True},
                 'telephone': {'type': 'email', 'required': True},
                 'password': {'type': 'password', 'required': True},
-                'accountId': {'type': 'password', 'required': False},
-                'localisation_id': {'type': 'integer', 'required': False}
+                'localisation_id': {'type': 'integer', 'required': False},
+                'typeUser': {'type': 'integer', 'required': True},
+                'is_active': {'type': 'boolean', 'required': True}
             }
         super().__init__(fields=fields, serializer_class=serializer_class, service=service, **kwargs)
         self.localisation_service = LocalisationService()
@@ -84,15 +86,17 @@ class PersonViewSet(ViewSet):
 
     def signup(self, request, *args, **kwargs):
         data = {}
-        localisation = self.localisation_service.filter_by(request.data.get('localisation'))
+        localisation = self.localisation_service.filter_by(request.data.get('localisation')).first()
         if localisation is None:
             localisation = self.localisation_service.create(data=request.data.get('localisation'))
         for i in self.fields:
             data[i] = request.data.get(i)
         data['localisation_id'] = localisation.id
         user = self.service.filter_by({'cin': request.data.get('cin')}).first()
+        data['is_active'] = True
         if user is not None:
-            data['is_active'] = True
+            if user.is_active:
+                return Response(data={'error': 'لقد تم بالفعل إنشاء حساب بهذا الرقم'}, status=HTTP_401_UNAUTHORIZED)
             self.service.put(_id=user.id, data=data)
         else:
             user = self.service.create(data)
