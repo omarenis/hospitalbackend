@@ -52,7 +52,7 @@ class PersonViewSet(ViewSet):
         permission_classes = []
         if self.action == 'list':
             permission_classes.append(IsAdminUser)
-        elif self.action == 'retrieve':
+        elif self.action == 'retrieve' or self.action == 'logout':
             permission_classes.append(IsAuthenticated)
         elif self.action == 'signup' or self.action == 'login':
             permission_classes.append(AllowAny)
@@ -81,7 +81,7 @@ class PersonViewSet(ViewSet):
             "refresh": str(token),
             "userId": user.id,
             "typeUser": user.typeUser,
-            "user": user.name + ' '+user.familyName
+            "user": user.name + ' ' + user.familyName
         })
 
     def signup(self, request, *args, **kwargs):
@@ -109,12 +109,22 @@ class PersonViewSet(ViewSet):
                 "refresh": str(token),
                 "userId": user.id,
                 "typeUser": user.typeUser,
-                "username": user.name + ' ' + user.familyName
+                "username": user.name + ' ' + user.familyName,
+                "name": user.name,
+                "familyName": user.familyName,
+                "cin": user.cin,
+                "telephone": user.telephone,
+                "email": user.email,
             })
+
+    @staticmethod
+    def logout(request, *args, **kwargs):
+        token = RefreshToken(request.data.get('token').encode('utf-8'))
+        token.blacklist()
+        return None
 
 
 users_list, user_retrieve_update_delete = PersonViewSet.get_urls()
-
 
 login = PersonViewSet.as_view({
     'post': 'login'
@@ -122,9 +132,14 @@ login = PersonViewSet.as_view({
 signup = PersonViewSet.as_view({
     'post': 'signup'
 })
+logout = PersonViewSet.as_view({
+    'post': 'logout'
+})
+
 urlpatterns = [
     path('', users_list),
     path('<int:user_id>', user_retrieve_update_delete),
     path('login', login),
     path('signup', signup),
+    path('logout', logout)
 ]
