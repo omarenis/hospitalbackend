@@ -3,13 +3,11 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP
     HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-
 from common.services import calculate_score
 
 
 def extract_data_with_validation(request, fields: dict):
     output = {}
-    print(request.content_type)
     attrs = list(request.data.keys())
     attrs += list(request.files.keys()) if request.content_type != 'application/json' else []
     for i in set(attrs):

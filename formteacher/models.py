@@ -66,7 +66,7 @@ has_learning_difficulties = {'hasLearningDifficulties': TextField(db_column='has
 FORM_FIELDS = {
     'patient': ForeignKey(null=False, on_delete=CASCADE, to=patient_model_location),
     'score': FloatField(null=False),
-    'teacher': ForeignKey(null=False, on_delete=CASCADE, to='Teacher')
+    'teacher': ForeignKey(null=False, on_delete=CASCADE, to='gestionusers.Teacher')
 }
 
 BEHAVIOR_TROUBLE_TEACHER_FIELDS = {
@@ -117,12 +117,6 @@ EXTRA_TROUBLE_TEACHER_FIELDS = {
     **trouble_integrating_with_other_students,
     **less_cooperate_with_others
 }
-Teacher = create_model(name='Teacher', type_model=Model, fields={
-    'name': TextField(), 'familyName': TextField(), 'cin': TextField(null=False, unique=True),
-    'telephone': TextField()
-}, app_label=app_label, options={
-    'db_table': 'teacher'
-})
 
 
 Form = create_model(name='Form', type_model=Model, fields=FORM_FIELDS, app_label=app_label, options={'abstract': True})
@@ -151,4 +145,3 @@ ExtraTroubleTeacherSerializer = create_model_serializer(name='ExtraTroubleTeache
                                                         model=ExtraTroubleTeacher)
 InattentionTroubleTeacherSerializer = create_model_serializer(name='InattentionTroubleTeacherSerializer',
                                                               model=InattentionTroubleTeacher)
-TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)

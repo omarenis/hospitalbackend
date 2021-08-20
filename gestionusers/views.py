@@ -1,8 +1,9 @@
 from django.urls import path
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from common.views import ViewSet
 from gestionusers.models import LocalisationSerializer, PersonSerializer
 from gestionusers.services import LocalisationService, PersonService
@@ -81,7 +82,12 @@ class PersonViewSet(ViewSet):
             "refresh": str(token),
             "userId": user.id,
             "typeUser": user.typeUser,
-            "user": user.name + ' ' + user.familyName
+            "name": user.name,
+            "familyName": user.familyName,
+            "cin": user.cin,
+            "telephone": user.telephone,
+            "email": user.email,
+            "is_superuser": user.is_superuser
         })
 
     def signup(self, request, *args, **kwargs):
@@ -114,8 +120,8 @@ class PersonViewSet(ViewSet):
                 "familyName": user.familyName,
                 "cin": user.cin,
                 "telephone": user.telephone,
-                "email": user.email,
-            })
+                "email": user.email
+            }, status=HTTP_201_CREATED)
 
     @staticmethod
     def logout(request, *args, **kwargs):

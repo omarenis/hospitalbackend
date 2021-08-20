@@ -39,7 +39,6 @@ class FormService(Service):
 
 def calculate_score(data, fields):
     value = 0
-    print(data)
     for i in fields:
         if not data.get(i):
             raise AttributeError(f'{i} is not an attribte for the instance')

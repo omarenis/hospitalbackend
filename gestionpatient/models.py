@@ -15,7 +15,7 @@ class Patient(Model):
 
     class Meta:
         db_table = 'patients'
-        unique_together = (('name', 'familyName'),)
+        unique_together = (('name', 'familyName', 'school', 'parent_id', 'birthdate'),)
 
 
 class Orientation(Model):

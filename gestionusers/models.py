@@ -4,8 +4,9 @@ from django.db.models import BooleanField, CharField, EmailField, ForeignKey, Mo
 from rest_framework.serializers import ModelSerializer
 import string
 import random
-from common.models import create_model
+from common.models import create_model, create_model_serializer
 
+app_label = 'gestionusers'
 LOCALISATION_FIELDS = {
     'governorate': TextField(null=False),
     'delegation': TextField(null=False),
@@ -16,19 +17,22 @@ Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALI
                                 'db_table': 'localisations',
                                 'unique_together': ('governorate', 'delegation', 'zipCode')
                             },
-                            app_label='gestionusers')
+                            app_label=app_label)
 
 
 class UserManager(BaseUserManager):
-    def create(self, name, familyName, cin, telephone, typeUser, is_active=False, localisation_id=None, email=None, password=None):
+    def create(self, name, familyName, cin, telephone, typeUser, is_active=False, localisation_id=None, email=None,
+               password=None):
         data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone, 'accountId': None,
                 'is_active': is_active, 'password': password, 'email': self.normalize_email(email) if email else email,
-                'localisation_id': localisation_id}
+                'localisation_id': localisation_id, 'typeUser': typeUser}
         try:
             if typeUser == 'parent':
                 user = Parent(**data)
             elif typeUser == 'doctor':
                 user = Doctor(**data)
+            elif typeUser == 'teacher':
+                user = Teacher(**data)
             else:
                 raise AttributeError('user must be parent or doctor')
             user.username = name + ' ' + familyName + cin
@@ -43,21 +47,23 @@ class UserManager(BaseUserManager):
             return exception
 
 
-class Person(AbstractUser):
-    objects = UserManager()
-    name: TextField = TextField(null=False)
-    familyName: TextField = TextField(null=False, db_column='family_name')
-    cin: CharField = CharField(max_length=255, null=False, unique=True)
-    email: EmailField = EmailField(null=True, unique=False)
-    telephone: CharField = CharField(max_length=255, null=False, unique=True)
-    password: TextField = TextField(null=True)
-    accountId: TextField = TextField(null=True, db_column='account_id')
-    is_active = BooleanField(null=False, default=False)
-    typeUser: TextField = TextField(null=False)
-    localisation = ForeignKey(null=True, to=Localisation, on_delete=SET_NULL)
+PERSON_FIElDS = {
+    'name': TextField(null=False),
+    'familyName': TextField(null=False, db_column='family_name'),
+    'cin': TextField(null=False),
+    'email': TextField(null=True),
+    'telephone': TextField(null=False),
+    'password': TextField(null=False),
+    'accountId': TextField(null=True, db_column='account_id'),
+    'is_active': BooleanField(null=False, default=False),
+    'typeUser': TextField(null=False, db_column='type_user'),
+    'localisation': ForeignKey(null=True, to='Localisation', on_delete=SET_NULL),
+    'objects': UserManager()
+}
 
-    class Meta:
-        db_table = 'persons'
+Person = create_model(name='Person', type_model=AbstractUser, fields=PERSON_FIElDS, options={
+    'db_table': 'persons'
+}, app_label=app_label)
 
 
 class PersonSerializer(ModelSerializer):
@@ -73,8 +79,15 @@ class Parent(Person):
 
 
 class Doctor(Person):
+    is_super: BooleanField = BooleanField(null=False, default=False)
+
     class Meta:
         db_table = 'doctors'
+
+
+class Teacher(Person):
+    class Meta:
+        db_table = 'teachers'
 
 
 class LocalisationSerializer(ModelSerializer):
@@ -82,3 +95,6 @@ class LocalisationSerializer(ModelSerializer):
         model = Localisation
         fields = '__all__'
         excludes = ['person_set']
+
+
+TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)

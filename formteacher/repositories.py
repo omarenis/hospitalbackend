@@ -1,11 +1,6 @@
 from common.repositories import Repository
-from .models import BehaviorTroubleTeacher, ExtraTroubleTeacher, HyperActivityTroubleTeacher, Teacher, \
+from .models import BehaviorTroubleTeacher, ExtraTroubleTeacher, HyperActivityTroubleTeacher, \
     ImpulsivityTroubleTeacher, InattentionTroubleTeacher
-
-
-class TeacherRepository(Repository):
-    def __init__(self, model=Teacher):
-        super().__init__(model)
 
 
 class BehaviorTroubleTeacherRepository(Repository):
