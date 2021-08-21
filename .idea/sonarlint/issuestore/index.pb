@@ -5,8 +5,6 @@
 common/apps.py,9/c/9cb1607cdd32fcb1f30b6c3884228fa5973d32bb
 U
 %gestionpatient/migrations/__init__.py,0/e/0e71c05fa58dd7eafb100c4148b43879a8a3784e
-C
-backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
 V
 &static/styles.d1374df712fd9aa94ed5.css,4/3/4316d723ac97924bb201d98ff912a6ffa07badcd
 V
