@@ -34,6 +34,7 @@ contract PrivateData{
         parents[numberParents] = parent;
         numberParents++;
     }
+
     constructor public(){
 
     }

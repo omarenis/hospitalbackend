@@ -83,7 +83,7 @@ class ViewSet(ModelViewSet):
     @classmethod
     def get_urls(cls):
         return cls.as_view({'get': 'list', 'post': 'create'}), cls.as_view(
-            {'get': 'retreive', 'put': 'update', 'delete': 'delete'}
+            {'get': 'retrieve', 'put': 'update', 'delete': 'delete'}
         )
 
 

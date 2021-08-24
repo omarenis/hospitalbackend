@@ -33,6 +33,10 @@ class UserManager(BaseUserManager):
                 user = Doctor(**data)
             elif typeUser == 'teacher':
                 user = Teacher(**data)
+            elif typeUser == 'admin':
+                data['is_active'] = True
+                data['is_superuser'] = True
+                user = Person(**data)
             else:
                 raise AttributeError('user must be parent or doctor')
             user.username = name + ' ' + familyName + cin
@@ -66,11 +70,19 @@ Person = create_model(name='Person', type_model=AbstractUser, fields=PERSON_FIEl
 }, app_label=app_label)
 
 
+class LocalisationSerializer(ModelSerializer):
+    class Meta:
+        model = Localisation
+        fields = '__all__'
+        excludes = ['person_set']
+
+
 class PersonSerializer(ModelSerializer):
+    localisation = LocalisationSerializer(read_only=True)
+
     class Meta:
         model = Person
         fields = '__all__'
-        excludes = ['password', 'accountId']
 
 
 class Parent(Person):
@@ -88,13 +100,6 @@ class Doctor(Person):
 class Teacher(Person):
     class Meta:
         db_table = 'teachers'
-
-
-class LocalisationSerializer(ModelSerializer):
-    class Meta:
-        model = Localisation
-        fields = '__all__'
-        excludes = ['person_set']
 
 
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)

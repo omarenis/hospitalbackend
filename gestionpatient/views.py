@@ -112,7 +112,6 @@ class PatientViewSet(ViewSet):
             parent_id = request.data.get('parent_id')
             if parent_id is None:
                 parent = PersonService().filter_by({'cin': request.data.get('parent').get('cin')}).first()
-                print(parent)
                 parent = PersonService().create(request.data.get('parent')) if parent is None else parent
                 if isinstance(parent, Exception):
                     raise parent
@@ -169,7 +168,7 @@ orientations, orientation = OrientationViewSet.get_urls()
 
 urlpatterns = [
     path('', patients),
-    path('<int:id>', patient),
+    path('<int:pk>', patient),
     path('orientations', orientations),
-    path('orentations/<int:id>', orientation)
+    path('orentations/<int:pk>', orientation)
 ]

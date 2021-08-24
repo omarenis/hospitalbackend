@@ -17,7 +17,7 @@ class LocalisationViewSet(ViewSet):
             permission_classes.append(AllowAny)
         else:
             permission_classes.append(IsAdminUser)
-        return [permission() for permission in permission_classes]
+        return (permission() for permission in permission_classes)
 
     def __init__(self, fields=None,
                  serializer_class=LocalisationSerializer,
@@ -59,12 +59,13 @@ class PersonViewSet(ViewSet):
             permission_classes.append(AllowAny)
         return [permission() for permission in permission_classes if permission is not None]
 
-    def retrieve(self, request, pk=None, *args, **kwargs):
-        user = self.service.retreive(pk)
+    def retrieve(self, request, id=None, *args, **kwargs):
+        user = self.service.retreive(id)
         if user is None:
             return Response(data={"error": "لم يتم العثور على المستخدم"}, status=404)
         else:
-            return Response(data=self.serializer_class(data=user).data, status=200)
+            print(self.serializer_class(user).data)
+            return Response(data=self.serializer_class(user).data, status=200)
 
     def login(self, request, *args, **kwargs):
         cin = request.data.get('cin')
@@ -77,6 +78,8 @@ class PersonViewSet(ViewSet):
         if isinstance(user, Exception):
             return Response(data={"error": str(user)}, status=500)
         token = RefreshToken.for_user(user=user)
+        print("refresh token = ", str(token))
+        print("access token = ", str(token.access_token))
         return Response(data={
             "access": str(token.access_token),
             "refresh": str(token),
@@ -84,10 +87,7 @@ class PersonViewSet(ViewSet):
             "typeUser": user.typeUser,
             "name": user.name,
             "familyName": user.familyName,
-            "cin": user.cin,
-            "telephone": user.telephone,
-            "email": user.email,
-            "is_superuser": user.is_superuser
+            "isSuperUser": user.is_superuser
         })
 
     def signup(self, request, *args, **kwargs):
@@ -110,22 +110,21 @@ class PersonViewSet(ViewSet):
             return Response(data={"error": str(user)}, status=500)
         else:
             token = RefreshToken.for_user(user=user)
+            print("token", token.access_token)
             return Response(data={
                 "access": str(token.access_token),
                 "refresh": str(token),
                 "userId": user.id,
                 "typeUser": user.typeUser,
-                "username": user.name + ' ' + user.familyName,
                 "name": user.name,
                 "familyName": user.familyName,
-                "cin": user.cin,
-                "telephone": user.telephone,
-                "email": user.email
+                "isSuperUser": user.is_superuser
             }, status=HTTP_201_CREATED)
 
     @staticmethod
     def logout(request, *args, **kwargs):
-        token = RefreshToken(request.data.get('refresh').encode('utf-8'))
+        print(request.data)
+        token = RefreshToken(request.data.get('refresh'))
         token.blacklist()
         return Response(status=HTTP_204_NO_CONTENT)
 
@@ -144,7 +143,7 @@ logout = PersonViewSet.as_view({
 
 urlpatterns = [
     path('', users_list),
-    path('<int:user_id>', user_retrieve_update_delete),
+    path('<int:id>', user_retrieve_update_delete),
     path('login', login),
     path('signup', signup),
     path('logout', logout)

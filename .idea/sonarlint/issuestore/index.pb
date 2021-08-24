@@ -35,8 +35,6 @@ B
 common/services.py,1/3/13442ff2c318f6c4daec6494e860f32f8de076cf
 ?
 common/tests.py,5/9/591ae9cb7b67faf9b030b21fcc2371e362b700f4
-?
-common/views.py,a/2/a2027c4c3af278934dafdb4a641e3f65e648e9d1
 C
 formparent/views.py,1/5/15f0037355665f20764fe6a9d62a267e7846197b
 H
@@ -45,3 +43,9 @@ D
 formparent/models.py,7/d/7d1578a3027b6a5921063076c674eef4d34ebbf4
 E
 formteacher/models.py,a/1/a10522a44f68e9504280b456db5fd7f3de3d75ff
+G
+gestionpatient/views.py,e/6/e6ad7b6eb048b6d21e1def1d112d7b7d7cd18aec
+?
+common/views.py,a/2/a2027c4c3af278934dafdb4a641e3f65e648e9d1
+7
+test.py,a/3/a36e355ddb203d7d4133221f339dc406cb9f480f
