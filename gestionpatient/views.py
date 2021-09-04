@@ -2,16 +2,15 @@ from django.urls import path
 from rest_framework.response import Response
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from common.models import text_field
-from common.repositories import Repository
-from common.services import Service
 from common.views import ViewSet, extract_data_with_validation
 from formparent.services import AnxityTroubleParentService, BehaviorTroubleParentService, ExtraTroubleParentService, \
     HyperActivityTroubleParentService, ImpulsivityTroubleParentService, LearningTroubleParentService, \
     SomatisationTroubleParentService
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
-from .models import Orientation, OrientationSerializer, Patient, PatientSerializer
+from .models import ConsultationSerializer, PatientSerializer, SuperviseSerializer
 from gestionusers.services import PersonService
+from .service import ConsultationService, PatientService
 
 
 def add_other_data_to_patient(data: dict, service, patient_id, teacher_id=None):
@@ -36,59 +35,45 @@ PATIENT_FIELDS = {
     'school': text_field,
     'birthdate': {'type': 'date', 'required': True},
     'parent_id': {'type': 'foreign_key', 'required': False},
-    'doctor_id': {'type': 'foreign_key', 'required': False},
     'parent': {'type': 'foreign_key', 'required': False},
     'teacher': {'type': 'foreign_key', 'required': False},
-    'behaviorTroubleParent': {'type': 'BehaviorTroubleParent', 'required': False},
-    'impulsivityTroubleParent': {'type': 'ImpulsivityTroubleParent', 'required': False},
-    'learningTroubleParent': {'type': 'LearningTroubleParent', 'required': False},
-    'anxityTroubleParent': {'type': 'AnxityTroubleParent', 'required': False},
-    'somatisationTroubleParent': {'type': 'SomatisationTroubleParent', 'required': False},
-    'hyperactivityTroubleParent': {'type': 'HyperActivityTroubleParent', 'required': False},
-    'extraTroubleParent': {'type': 'ExtraTroubleParent', 'required': False},
+    'behaviortroubleparent': {'type': 'BehaviorTroubleParent', 'required': False},
+    'impulsivitytroubleparent': {'type': 'ImpulsivityTroubleParent', 'required': False},
+    'learningtroubleparent': {'type': 'LearningTroubleParent', 'required': False},
+    'anxitytroubleparent': {'type': 'AnxityTroubleParent', 'required': False},
+    'somatisationtroubleparent': {'type': 'SomatisationTroubleParent', 'required': False},
+    'hyperactivitytroubleparent': {'type': 'HyperActivityTroubleParent', 'required': False},
+    'extratroubleparent': {'type': 'ExtraTroubleParent', 'required': False},
     'behaviorTroubleTeacher_set': {'type': 'list', 'required': False},
     'hyperActivityTroubleTeacher_set': {'type': 'list', 'required': False},
     'impulsivityTroubleTeacher_set': {'type': 'list', 'required': False},
     'inattentionTroubleTeacher_set': {'type': 'list', 'required': False},
     'extraTroubleTeacher_set': {'type': 'list', 'required': False}
 }
-
-ORIENTATION_FIELDS = {
-    'patient_id': {'type': 'foerign_key', 'required': True},
-    'doctor_id': {'type': 'foreign_key', 'required': True},
-    'diagnostic': text_field
+SUPERVICE_FIELDS = {
+    'patient_id': {'type': 'int', 'required': True},
+    'doctor_id': {'type': 'int', 'required': True},
+    'validated': {'type': 'bool', 'required': True}
 }
 
-
-class PatientRepository(Repository):
-    def __init__(self, model=Patient):
-        super().__init__(model)
-
-
-class OrientationRepository(Repository):
-    def __init__(self, model=Orientation):
-        super().__init__(model)
-
-
-class PatientService(Service):
-    def __init__(self, repository=PatientRepository()):
-        super().__init__(repository)
-
-
-class OrientationService(Service):
-    def __init__(self, repository=OrientationRepository()):
-        super().__init__(repository)
+CONSULTATION_FIELDS = {
+    'patient_id': {'type': 'int', 'required': True},
+    'doctor_id': {'type': 'int', 'required': True},
+    'parent_id': {'type': 'int', 'required': True},
+    'date': {'type': 'int', 'required': True},
+    'accepted': {'type': 'bool', 'required': True}
+}
 
 
 class PatientViewSet(ViewSet):
     services = {
-        'behaviorTroubleParent': BehaviorTroubleParentService(),
-        'impulsivityTroubleParent': ImpulsivityTroubleParentService(),
-        'learningTroubleParent': LearningTroubleParentService(),
-        'anxityTroubleParent': AnxityTroubleParentService(),
-        'somatisationTroubleParent': SomatisationTroubleParentService(),
-        'hyperactivityTroubleParent': HyperActivityTroubleParentService(),
-        'extraTroubleParent': ExtraTroubleParentService(),
+        'behaviortroubleparent': BehaviorTroubleParentService(),
+        'impulsivitytroubleparent': ImpulsivityTroubleParentService(),
+        'learningtroubleparent': LearningTroubleParentService(),
+        'anxitytroubleparent': AnxityTroubleParentService(),
+        'somatisationtroubleparent': SomatisationTroubleParentService(),
+        'hyperactivitytroubleparent': HyperActivityTroubleParentService(),
+        'extratroubleparent': ExtraTroubleParentService(),
         'behaviorTroubleTeacher_set': BehaviorTroubleTeacherService(),
         'hyperActivityTroubleTeacher_set': HyperActivityTroubleTeacherService(),
         'impulsivityTroubleTeacher_set': ImpulsivityTroubleTeacherService(),
@@ -140,9 +125,9 @@ class PatientViewSet(ViewSet):
                     raise patient_object
             patient_id = patient_object.id
             for i in self.fields:
-                if not self.fields[i].get('required') \
-                        and self.fields[i].get('type') not in ['date', 'foreign_key', 'text'] and request.data.get(i) \
-                        is not None:
+                if not self.fields[i].get('required') and request.data.get(i) is not None \
+                        and self.fields[i].get('type') != 'date' and self.fields[i].get('typr') != 'text' \
+                        and self.fields[i].get('type') != 'foreign_key':
                     add_other_data_to_patient(
                         data=request.data.get(i)[0] if teacher_id is not None else request.data.get(i),
                         service=self.services[i],
@@ -156,19 +141,23 @@ class PatientViewSet(ViewSet):
             return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class OrientationViewSet(ViewSet):
-    def __init__(self, fields=None, serializer_class=OrientationSerializer, service=OrientationService(), **kwargs):
+class ConsultationViewSet(ViewSet):
+    def __init__(self, fields=None, serializer_class=ConsultationSerializer, service=ConsultationService(), **kwargs):
         if fields is None:
-            fields = ORIENTATION_FIELDS
+            fields = CONSULTATION_FIELDS
+        super().__init__(fields, serializer_class, service, **kwargs)
+
+
+class SuperviseViewSet(ViewSet):
+    def __init__(self, fields=None, serializer_class=SuperviseSerializer, service, **kwargs):
+        if fields is None:
+            fields = SUPERVICE_FIELDS
         super().__init__(fields, serializer_class, service, **kwargs)
 
 
 patients, patient = PatientViewSet.get_urls()
-orientations, orientation = OrientationViewSet.get_urls()
 
 urlpatterns = [
     path('', patients),
     path('<int:pk>', patient),
-    path('orientations', orientations),
-    path('orentations/<int:pk>', orientation)
 ]

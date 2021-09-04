@@ -119,7 +119,8 @@ EXTRA_TROUBLE_TEACHER_FIELDS = {
 }
 
 
-Form = create_model(name='Form', type_model=Model, fields=FORM_FIELDS, app_label=app_label, options={'abstract': True})
+Form = create_model(name='Form', type_model=Model, fields=FORM_FIELDS, app_label=app_label,
+                    options={'db_table': 'teacher_patient_form'})
 BehaviorTroubleTeacher = create_model(name='BehaviorTroubleTeacher', type_model=Form, app_label=app_label,
                                       options={'db_table': 'behavoir_trouble_teacher'},
                                       fields=BEHAVIOR_TROUBLE_TEACHER_FIELDS)

@@ -3,7 +3,6 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from common.views import ViewSet
 from gestionusers.models import LocalisationSerializer, PersonSerializer
 from gestionusers.services import LocalisationService, PersonService
@@ -19,10 +18,7 @@ class LocalisationViewSet(ViewSet):
             permission_classes.append(IsAdminUser)
         return (permission() for permission in permission_classes)
 
-    def __init__(self, fields=None,
-                 serializer_class=LocalisationSerializer,
-                 service=LocalisationService(),
-                 **kwargs):
+    def __init__(self, fields=None, serializer_class=LocalisationSerializer, service=LocalisationService(), **kwargs):
         if fields is None:
             fields = {
                 'governorate': {'type': 'text', 'required': True},
@@ -53,18 +49,17 @@ class PersonViewSet(ViewSet):
         permission_classes = []
         if self.action == 'list' or self.action == 'retreive':
             permission_classes.append(IsAdminUser)
-        elif self.action == 'logout':
+        elif self.action == 'logout' or self.action == 'delete':
             permission_classes.append(IsAuthenticated)
         elif self.action == 'signup' or self.action == 'login':
             permission_classes.append(AllowAny)
         return [permission() for permission in permission_classes if permission is not None]
 
-    def retrieve(self, request, id=None, *args, **kwargs):
-        user = self.service.retreive(id)
+    def retrieve(self, request, _id=None, *args, **kwargs):
+        user = self.service.retreive(_id)
         if user is None:
             return Response(data={"error": "لم يتم العثور على المستخدم"}, status=404)
         else:
-            print(self.serializer_class(user).data)
             return Response(data=self.serializer_class(user).data, status=200)
 
     def login(self, request, *args, **kwargs):
@@ -78,8 +73,6 @@ class PersonViewSet(ViewSet):
         if isinstance(user, Exception):
             return Response(data={"error": str(user)}, status=500)
         token = RefreshToken.for_user(user=user)
-        print("refresh token = ", str(token))
-        print("access token = ", str(token.access_token))
         return Response(data={
             "access": str(token.access_token),
             "refresh": str(token),
@@ -110,7 +103,6 @@ class PersonViewSet(ViewSet):
             return Response(data={"error": str(user)}, status=500)
         else:
             token = RefreshToken.for_user(user=user)
-            print("token", token.access_token)
             return Response(data={
                 "access": str(token.access_token),
                 "refresh": str(token),
@@ -123,7 +115,6 @@ class PersonViewSet(ViewSet):
 
     @staticmethod
     def logout(request, *args, **kwargs):
-        print(request.data)
         token = RefreshToken(request.data.get('refresh'))
         token.blacklist()
         return Response(status=HTTP_204_NO_CONTENT)
@@ -143,7 +134,7 @@ logout = PersonViewSet.as_view({
 
 urlpatterns = [
     path('', users_list),
-    path('<int:id>', user_retrieve_update_delete),
+    path('<int:_id>', user_retrieve_update_delete),
     path('login', login),
     path('signup', signup),
     path('logout', logout)

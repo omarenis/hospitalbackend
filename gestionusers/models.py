@@ -78,7 +78,7 @@ class LocalisationSerializer(ModelSerializer):
 
 
 class PersonSerializer(ModelSerializer):
-    localisation = LocalisationSerializer(read_only=True)
+    localisation = LocalisationSerializer(read_only=True, allow_null=True)
 
     class Meta:
         model = Person

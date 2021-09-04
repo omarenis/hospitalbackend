@@ -9,7 +9,7 @@ PARENT_FORM_FIELDS = {
 
 chew_mib_things = {'chewMibThings': TextField(null=False, db_column="chew_mib_things", choices=choices)}
 insolent_wth_grown_ups = {'insolentWithGrownUps': TextField(null=False, db_column='insolent_wth_grown_ups',
-                                                           choices=choices)}
+                                                            choices=choices)}
 trouble_make_keep_friends = {'troubleMakeKeepFriends': TextField(null=False, db_column='trouble_make_keep_friends',
                                                                  choices=choices)}
 excitable_impulsive = {'excitableImpulsive': TextField(null=False, db_column='excitable_impulsive', choices=choices)}

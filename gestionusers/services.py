@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import check_password
 from common.services import Service
-from gestionusers.repositories import LocalisationRepository, UserRepository
+from .repositories import LocalisationRepository, UserRepository
 
 
 def get_or_create_parent(data):
@@ -17,7 +17,6 @@ def get_or_create_parent(data):
     else:
         data['is_active'] = False
         parent_id = person_service.create(data)
-        print(parent_id)
         if not isinstance(parent_id, Exception):
             parent_id = parent_id.id
     return parent_id

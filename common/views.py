@@ -72,10 +72,10 @@ class ViewSet(ModelViewSet):
             return Response(data={'error': 'object not found'}, status=HTTP_404_NOT_FOUND)
         return Response(data=self.serializer_class(_object).data, status=HTTP_201_CREATED)
 
-    def delete(self, request, pk=None, *args, **kwargs):
-        if pk is None:
+    def delete(self, request, _id=None, *args, **kwargs):
+        if _id is None:
             return Response(data={'error': 'id must not be null'}, status=HTTP_400_BAD_REQUEST)
-        deleted = self.service.delete(pk)
+        deleted = self.service.delete(_id)
         if isinstance(deleted, Exception):
             return Response(data={'error': str(deleted)}, status=HTTP_404_NOT_FOUND)
         return Response(data={'response': True}, status=200)

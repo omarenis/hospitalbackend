@@ -1,41 +1,34 @@
-pragma solidity ^0.6.0;
+pragma solidity ^0.8;
 
 contract PrivateData{
     uint numberParents = 0;
     uint numberPatients = 0;
     struct Patient{
-        uint id;
+        uint256 id;
         string name;
         string familyName;
         string birthdate;
     }
-    struct Parent{
-        address id;
-        string name;
-        string familyName;
-        string email;
-        string telephone;
-        string password;
-        uint numberPatients;
-        mapping(uint => uint) patients;
-    }
-    mapping(address => uint) parents;
+    mapping(uint => Patient) public patients;
 
-    function public getParent(address _id) view returns (Parent){
-        for(uint i=0; i < numberParents; i++){
-            if(parents[i].id == _id){
-                return parents[i];
-            }
-        }
-        return null;
+    function  createPatient(uint256 id, string memory name, string memory familyName, string memory birthdate) public{
+        patients[id] = Patient(id, name, familyName, birthdate);
     }
 
-    function public createParent(struct Parent memory parent){
-        parents[numberParents] = parent;
-        numberParents++;
+    function getPatientById(uint256 id) public view returns(Patient memory){
+        return patients[id];
     }
 
-    constructor public(){
+    function deletePatient(uint256 id) public {
+        delete patients[id];
+    }
 
+
+    function updatePatient(uint256 id, string memory name, string memory familyName, string memory birthdate) public{
+        Patient memory patient = getPatientById(id);
+        patient.name = name;
+        patient.familyName = familyName;
+        patient.birthdate = birthdate;
+        patients[id] = patient;
     }
 }

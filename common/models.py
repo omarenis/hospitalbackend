@@ -30,12 +30,20 @@ def create_model(name, type_model, fields=None, app_label='', module='', options
     return model
 
 
-def create_model_serializer(name, model, app_label='', fields='__all__'):
+def create_model_serializer(name, model, module='', app_label='', fields=None, options=None):
     class Meta:
         pass
 
+    attrs = {'__module__': module, 'Meta': Meta}
     setattr(Meta, 'model', model)
-    setattr(Meta, 'fields', fields)
+    if fields:
+        attrs.update(fields)
+
+    if options is not None:
+        for key, value in options.items():
+            setattr(Meta, key, value)
+    else:
+        setattr(Meta, 'fields', '__all__')
 
     if app_label:
         setattr(Meta, 'app_label', app_label)
