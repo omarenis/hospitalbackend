@@ -1,5 +1,5 @@
-pragma solidity ^0.8;
-
+pragma solidity ^0.4;
+pragma experimental ABIEncoderV2;
 contract PrivateData{
     uint numberParents = 0;
     uint numberPatients = 0;
@@ -10,6 +10,8 @@ contract PrivateData{
         string birthdate;
     }
     mapping(uint => Patient) public patients;
+
+
 
     function  createPatient(uint256 id, string memory name, string memory familyName, string memory birthdate) public{
         patients[id] = Patient(id, name, familyName, birthdate);
@@ -25,7 +27,7 @@ contract PrivateData{
 
 
     function updatePatient(uint256 id, string memory name, string memory familyName, string memory birthdate) public{
-        Patient memory patient = getPatientById(id);
+        Patient memory patient = patients[id];
         patient.name = name;
         patient.familyName = familyName;
         patient.birthdate = birthdate;

@@ -1,10 +1,18 @@
 from common.repositories import Repository
-from .models import Person, Localisation
+from .models import Doctor, Parent, Person, Localisation
 
 
 class UserRepository(Repository):
     def __init__(self, model=Person):
         super().__init__(model)
+
+    def filter_by(self, data: dict):
+        if data.get('typeUser') == 'parent':
+            return Parent.objects.filter(data)
+        elif data.get('typeUser') == 'doctor':
+            return Doctor.objects.filter(data)
+        else:
+            super().filter_by(data=data)
 
     def put(self, _id: int, data: dict):
         _object = self.model.objects.get(id=_id)

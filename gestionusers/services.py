@@ -8,7 +8,6 @@ def get_or_create_parent(data):
     if data is None:
         return Exception('parent data must be filled')
     parent = person_service.filter_by({'cin': data['cin']}).first()
-    print(parent)
     if parent is not None:
         if parent.name != data.get('name') or parent.familyName != data.get('familyName') or \
                 parent.email != data.get('email') or parent.telephone != data.get('telephone'):

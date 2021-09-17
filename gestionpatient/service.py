@@ -1,5 +1,5 @@
 from common.services import Service
-from .repositories import PatientRepository, SuperviseRepository, ConsultationRepository
+from .repositories import DiagnosticRepository, PatientRepository, SuperviseRepository, ConsultationRepository
 
 
 class PatientService(Service):
@@ -14,4 +14,9 @@ class SuperviseService(Service):
 
 class ConsultationService(Service):
     def __init__(self, repository=ConsultationRepository()):
+        super().__init__(repository)
+
+
+class DiagnosticService(Service):
+    def __init__(self, repository=DiagnosticRepository):
         super().__init__(repository)

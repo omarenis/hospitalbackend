@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from common.models import text_field
@@ -8,9 +9,9 @@ from formparent.services import AnxityTroubleParentService, BehaviorTroubleParen
     SomatisationTroubleParentService
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
-from .models import ConsultationSerializer, PatientSerializer, SuperviseSerializer
+from .models import DiagnosticSerializer, RenderVousSerializer, PatientSerializer, SuperviseSerializer
 from gestionusers.services import PersonService
-from .service import ConsultationService, PatientService
+from .service import ConsultationService, DiagnosticService, PatientService, SuperviseService
 
 
 def add_other_data_to_patient(data: dict, service, patient_id, teacher_id=None):
@@ -57,11 +58,16 @@ SUPERVICE_FIELDS = {
 }
 
 CONSULTATION_FIELDS = {
-    'patient_id': {'type': 'int', 'required': True},
     'doctor_id': {'type': 'int', 'required': True},
     'parent_id': {'type': 'int', 'required': True},
     'date': {'type': 'int', 'required': True},
     'accepted': {'type': 'bool', 'required': True}
+}
+
+DIAGNOSTIC_FIELDS = {
+    'patient_id': {'type': 'int', 'required': True},
+    'doctor_id': {'type': 'int', 'required': True},
+    'content': {'type': 'str', 'required': True}
 }
 
 
@@ -102,7 +108,6 @@ class PatientViewSet(ViewSet):
                     raise parent
                 else:
                     parent_id = parent.id
-
             if request.data.get('teacher') is not None:
                 teacher = PersonService().filter_by({'cin': request.data.get('teacher').get('cin')}).first()
                 teacher = PersonService().create(request.data.get('teacher')) if teacher is None else teacher
@@ -141,23 +146,49 @@ class PatientViewSet(ViewSet):
             return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class ConsultationViewSet(ViewSet):
-    def __init__(self, fields=None, serializer_class=ConsultationSerializer, service=ConsultationService(), **kwargs):
+class RenderVousViewSet(ViewSet):
+    def get_permissions(self):
+        return [IsAuthenticated()]
+
+    def __init__(self, fields=None, serializer_class=RenderVousSerializer, service=ConsultationService(), **kwargs):
         if fields is None:
             fields = CONSULTATION_FIELDS
         super().__init__(fields, serializer_class, service, **kwargs)
 
 
 class SuperviseViewSet(ViewSet):
-    def __init__(self, fields=None, serializer_class=SuperviseSerializer, service, **kwargs):
+    def get_permissions(self):
+        return [IsAuthenticated()]
+
+    def __init__(self, fields=None, serializer_class=SuperviseSerializer, service=SuperviseService(), **kwargs):
         if fields is None:
             fields = SUPERVICE_FIELDS
         super().__init__(fields, serializer_class, service, **kwargs)
 
 
+class DiagnosticViewSet(ViewSet):
+    def get_permissions(self):
+        return [IsAuthenticated()]
+
+    def __init__(self, fields=None, serializer_class=DiagnosticSerializer, service=DiagnosticService(), **kwargs):
+        if fields is None:
+            fields = DIAGNOSTIC_FIELDS
+        super().__init__(fields, serializer_class, service, **kwargs)
+
+
 patients, patient = PatientViewSet.get_urls()
+supervises, supervise = SuperviseViewSet.get_urls()
+consultations, consultation = RenderVousViewSet.get_urls()
+diagnostics, diagnostic = DiagnosticViewSet.get_urls()
+
 
 urlpatterns = [
     path('', patients),
     path('<int:pk>', patient),
+    path('supervises', supervises),
+    path('supervises/<int:pk>', supervise),
+    path('consultations', consultations),
+    path('consultations/<int:pk>', consultation),
+    path('diagnostics', diagnostics),
+    path('diagnostics/<int:pk>', diagnostic)
 ]

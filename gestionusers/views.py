@@ -80,7 +80,9 @@ class PersonViewSet(ViewSet):
             "typeUser": user.typeUser,
             "name": user.name,
             "familyName": user.familyName,
-            "isSuperUser": user.is_superuser
+            "telephone": user.telephone,
+            "email": user.email if user.email is not None else '',
+            'cin': user.cin
         })
 
     def signup(self, request, *args, **kwargs):

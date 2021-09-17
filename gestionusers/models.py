@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
-from django.db.models import BooleanField, CharField, EmailField, ForeignKey, Model, SET_NULL, TextField
+from django.db.models import BooleanField, ForeignKey, Model, SET_NULL, TextField
 from rest_framework.serializers import ModelSerializer
 import string
 import random
@@ -22,7 +22,7 @@ Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALI
 
 class UserManager(BaseUserManager):
     def create(self, name, familyName, cin, telephone, typeUser, is_active=False, localisation_id=None, email=None,
-               password=None):
+               password=None, speciality=None):
         data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone, 'accountId': None,
                 'is_active': is_active, 'password': password, 'email': self.normalize_email(email) if email else email,
                 'localisation_id': localisation_id, 'typeUser': typeUser}
@@ -30,12 +30,18 @@ class UserManager(BaseUserManager):
             if typeUser == 'parent':
                 user = Parent(**data)
             elif typeUser == 'doctor':
+                if speciality is None:
+                    return Exception('speciality is required')
                 user = Doctor(**data)
             elif typeUser == 'teacher':
                 user = Teacher(**data)
+            elif typeUser == 'superdoctor':
+                data['is_active'] = True
+                user = Person(**data)
             elif typeUser == 'admin':
                 data['is_active'] = True
                 data['is_superuser'] = True
+                data['is_staff'] = True
                 user = Person(**data)
             else:
                 raise AttributeError('user must be parent or doctor')
@@ -54,7 +60,7 @@ class UserManager(BaseUserManager):
 PERSON_FIElDS = {
     'name': TextField(null=False),
     'familyName': TextField(null=False, db_column='family_name'),
-    'cin': TextField(null=False),
+    'cin': TextField(null=False, unique=True),
     'email': TextField(null=True),
     'telephone': TextField(null=False),
     'password': TextField(null=False),
@@ -91,7 +97,7 @@ class Parent(Person):
 
 
 class Doctor(Person):
-    is_super: BooleanField = BooleanField(null=False, default=False)
+    speciality: TextField = TextField(null=False)
 
     class Meta:
         db_table = 'doctors'
