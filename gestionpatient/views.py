@@ -1,5 +1,5 @@
 from django.urls import path
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from common.models import text_field
@@ -54,7 +54,7 @@ PATIENT_FIELDS = {
 SUPERVICE_FIELDS = {
     'patient_id': {'type': 'int', 'required': True},
     'doctor_id': {'type': 'int', 'required': True},
-    'validated': {'type': 'bool', 'required': True}
+    'accepted': {'type': 'bool', 'required': True}
 }
 
 CONSULTATION_FIELDS = {
@@ -101,8 +101,10 @@ class PatientViewSet(ViewSet):
             return Response(data={'error': str(data)}, status=HTTP_400_BAD_REQUEST)
         try:
             parent_id = request.data.get('parent_id')
+            print(parent_id)
             if parent_id is None:
                 parent = PersonService().filter_by({'cin': request.data.get('parent').get('cin')}).first()
+                print(parent)
                 parent = PersonService().create(request.data.get('parent')) if parent is None else parent
                 if isinstance(parent, Exception):
                     raise parent
@@ -158,7 +160,7 @@ class RenderVousViewSet(ViewSet):
 
 class SuperviseViewSet(ViewSet):
     def get_permissions(self):
-        return [IsAuthenticated()]
+        return [AllowAny()]
 
     def __init__(self, fields=None, serializer_class=SuperviseSerializer, service=SuperviseService(), **kwargs):
         if fields is None:
@@ -168,7 +170,7 @@ class SuperviseViewSet(ViewSet):
 
 class DiagnosticViewSet(ViewSet):
     def get_permissions(self):
-        return [IsAuthenticated()]
+        return [AllowAny()]
 
     def __init__(self, fields=None, serializer_class=DiagnosticSerializer, service=DiagnosticService(), **kwargs):
         if fields is None:

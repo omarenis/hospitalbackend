@@ -6,14 +6,6 @@ class UserRepository(Repository):
     def __init__(self, model=Person):
         super().__init__(model)
 
-    def filter_by(self, data: dict):
-        if data.get('typeUser') == 'parent':
-            return Parent.objects.filter(data)
-        elif data.get('typeUser') == 'doctor':
-            return Doctor.objects.filter(data)
-        else:
-            super().filter_by(data=data)
-
     def put(self, _id: int, data: dict):
         _object = self.model.objects.get(id=_id)
         if _object is None:
@@ -26,6 +18,11 @@ class UserRepository(Repository):
                 _object.set_password(data.get('password'))
             _object.save()
         return _object
+
+
+class DoctorRepository(Repository):
+    def __init__(self, model=Doctor):
+        super().__init__(model)
 
 
 class LocalisationRepository(Repository):

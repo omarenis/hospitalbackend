@@ -23,7 +23,7 @@ class Patient(Model):
 class Supervise(Model):
     patient: ForeignKey = ForeignKey(to='Patient', on_delete=CASCADE, null=False)
     doctor: ForeignKey = ForeignKey(to=doctor_model, on_delete=CASCADE, null=False)
-    validated: BooleanField = BooleanField(null=False, default=False)
+    accepted: BooleanField = BooleanField(null=False, default=False)
 
     class Meta:
         db_table = 'supervises'
@@ -51,7 +51,7 @@ class Diagnostic(Model):
 PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializer', app_label=app_label, options={
     'fields': ['id', 'name', 'familyName', 'birthdate', 'school', 'parent', 'behaviortroubleparent',
                'impulsivitytroubleparent', 'learningtroubleparent', 'anxitytroubleparent', 'somatisationtroubleparent',
-               'hyperactivitytroubleparent', 'extratroubleparent'],
+               'hyperactivitytroubleparent', 'extratroubleparent', 'supervise_set'],
     'depth': 1
 })
 
@@ -62,7 +62,7 @@ SuperviseSerializer = create_model_serializer(model=Supervise, app_label=app_lab
                                               },
                                               options={
                                                   'fields': ['patient', 'doctor', 'patient_id', 'doctor_id', 'id',
-                                                             'accepted', 'date'],
+                                                             'accepted'],
                                                   'depth': 1
                                               })
 RenderVousSerializer = create_model_serializer(model=RenderVous, name='Consultation', app_label=app_label)

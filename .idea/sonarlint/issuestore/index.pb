@@ -1,6 +1,4 @@
 
-D
-formparent/models.py,7/d/7d1578a3027b6a5921063076c674eef4d34ebbf4
 B
 messages/models.py,4/7/4723d5d3814c3713736108955bf0552cd43d5690
 A
@@ -21,8 +19,6 @@ C
 backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
 ;
 runtime.txt,2/e/2ed4029984f4a6c70a541992efb31f76528bd80d
-G
-gestionpatient/tests.py,4/f/4fd2206a1f392709c4c49faba4d6c856617087d7
 <
 contract.sol,0/6/06bf3ea8eed9d4c2485b4c8c28e2fe1fee975307
 @
@@ -31,3 +27,9 @@ G
 test.py,a/3/a36e355ddb203d7d4133221f339dc406cb9f480f
 N
 gestionpatient/repositories.py,7/2/72fd3eb5e84b673425b0426c989050427afaf697
+G
+gestionpatient/tests.py,4/f/4fd2206a1f392709c4c49faba4d6c856617087d7
+I
+gestionpatient/service.py,3/d/3dd3198c381b587b9c7dcdb4e360a28151db3608
+E
+gestionusers/tests.py,2/1/21248fdd2c73c3499aa3632427efc9e386f93b13

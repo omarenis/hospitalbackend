@@ -66,9 +66,9 @@ enability_finish_when_do_effort = {
 disturb_other_children = {'disturbOtherChildren': TextField(null=False, db_column='disrurb_other_children')}
 unhappy = {'unhappy': TextField(null=False, db_column='unhappy')}
 feeding_problems = {'feedingProblems': TextField(null=False, db_column='feeding_problems')}
+physical_aches = {'physicalAches': TextField(null=False, db_column='physical_aches')}
 upset_stomach = {'upsetStomach': TextField(null=False, db_column='upset_stomach')}
 sleeping_problems = {'sleepingProblems': TextField(null=False, db_column='sleeping_problems')}
-physical_aches = {'physicalAches': TextField(null=False, db_column='physical_aches')}
 vomiting_nausea = {'vomitingNausea': TextField(null=False, db_column='vomiting_nausea')}
 feel_wronged_cry_out_injustice = {
     'feelWrongedCryOutInjustice': TextField(null=False, db_column='feel_wronged_cry_out_injustice')

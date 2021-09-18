@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import check_password
 from common.services import Service
-from .repositories import LocalisationRepository, UserRepository
+from .repositories import DoctorRepository, LocalisationRepository, UserRepository
 
 
 def get_or_create_parent(data):
@@ -39,3 +39,8 @@ class PersonService(Service):
                 return Exception('كلمة السر غير صحيحة')
         else:
             return Exception('الحساب غير موجود')
+
+
+class DoctorService(Service):
+    def __init__(self, repository=DoctorRepository()):
+        super().__init__(repository)

@@ -4,8 +4,27 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED
 from rest_framework_simplejwt.tokens import RefreshToken
 from common.views import ViewSet
-from gestionusers.models import LocalisationSerializer, PersonSerializer
-from gestionusers.services import LocalisationService, PersonService
+from gestionusers.models import DoctorSerializer, LocalisationSerializer, PersonSerializer
+from gestionusers.services import DoctorService, LocalisationService, PersonService
+
+
+PERSON_FIELDS = {
+                'name': {'type': 'text', 'required': True},
+                'familyName': {'type': 'text', 'required': True},
+                'cin': {'type': 'text', 'required': True},
+                'email': {'type': 'email', 'required': True},
+                'telephone': {'type': 'email', 'required': True},
+                'password': {'type': 'password', 'required': True},
+                'localisation_id': {'type': 'integer', 'required': False},
+                'typeUser': {'type': 'integer', 'required': True},
+                'is_active': {'type': 'boolean', 'required': True},
+            }
+
+
+DOCTOR_FIELDS = {
+    **PERSON_FIELDS,
+    'speciality': {'type': 'text', 'required': True}
+}
 
 
 class LocalisationViewSet(ViewSet):
@@ -40,7 +59,8 @@ class PersonViewSet(ViewSet):
                 'password': {'type': 'password', 'required': True},
                 'localisation_id': {'type': 'integer', 'required': False},
                 'typeUser': {'type': 'integer', 'required': True},
-                'is_active': {'type': 'boolean', 'required': True}
+                'is_active': {'type': 'boolean', 'required': True},
+                'speciality': {'type': 'text', 'required': False}
             }
         super().__init__(fields=fields, serializer_class=serializer_class, service=service, **kwargs)
         self.localisation_service = LocalisationService()
@@ -112,7 +132,6 @@ class PersonViewSet(ViewSet):
                 "typeUser": user.typeUser,
                 "name": user.name,
                 "familyName": user.familyName,
-                "isSuperUser": user.is_superuser
             }, status=HTTP_201_CREATED)
 
     @staticmethod
@@ -122,7 +141,23 @@ class PersonViewSet(ViewSet):
         return Response(status=HTTP_204_NO_CONTENT)
 
 
+class DoctorViewSet(ViewSet):
+    def get_permissions(self):
+        permission_class = []
+        if self.action == 'list':
+            permission_class.append(AllowAny)
+        elif self.action == 'retreive':
+            permission_class.append(IsAuthenticated)
+        return [permission() for permission in permission_class]
+
+    def __init__(self, fields=None, serializer_class=DoctorSerializer, service=DoctorService(), **kwargs):
+        if fields is None:
+            fields = DOCTOR_FIELDS
+        super().__init__(fields, serializer_class, service, **kwargs)
+
+
 users_list, user_retrieve_update_delete = PersonViewSet.get_urls()
+doctor_list, doctor = DoctorViewSet.get_urls()
 
 login = PersonViewSet.as_view({
     'post': 'login'
@@ -139,5 +174,7 @@ urlpatterns = [
     path('<int:_id>', user_retrieve_update_delete),
     path('login', login),
     path('signup', signup),
-    path('logout', logout)
+    path('logout', logout),
+    path('doctors', doctor_list),
+    path('doctors/<int:_id>', doctor)
 ]

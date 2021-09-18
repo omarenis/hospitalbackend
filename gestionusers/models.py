@@ -32,6 +32,7 @@ class UserManager(BaseUserManager):
             elif typeUser == 'doctor':
                 if speciality is None:
                     return Exception('speciality is required')
+                data['speciality'] = speciality
                 user = Doctor(**data)
             elif typeUser == 'teacher':
                 user = Teacher(**data)
@@ -109,3 +110,4 @@ class Teacher(Person):
 
 
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)
+DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label)
