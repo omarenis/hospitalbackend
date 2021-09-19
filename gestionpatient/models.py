@@ -1,7 +1,10 @@
 from django.db.models import BooleanField, CASCADE, DateField, DateTimeField, ForeignKey, Model, OneToOneField, \
     TextField
-import django.utils.timezone as timezone
+from rest_framework.serializers import ModelSerializer
+
 from common.models import create_model_serializer
+import django.utils.timezone as timezone
+
 from gestionusers.models import PersonSerializer
 
 app_label = 'gestionpatient'
@@ -21,7 +24,7 @@ class Patient(Model):
 
 
 class Supervise(Model):
-    patient: ForeignKey = ForeignKey(to='Patient', on_delete=CASCADE, null=False)
+    patient: OneToOneField = OneToOneField(to='Patient', on_delete=CASCADE, null=False)
     doctor: ForeignKey = ForeignKey(to=doctor_model, on_delete=CASCADE, null=False)
     accepted: BooleanField = BooleanField(null=False, default=False)
 
@@ -48,22 +51,24 @@ class Diagnostic(Model):
         db_table = 'diagnostics'
 
 
+SuperviseSerializer = create_model_serializer(model=Supervise, app_label=app_label, name='SuperviseSerializer')
 PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializer', app_label=app_label, options={
     'fields': ['id', 'name', 'familyName', 'birthdate', 'school', 'parent', 'behaviortroubleparent',
                'impulsivitytroubleparent', 'learningtroubleparent', 'anxitytroubleparent', 'somatisationtroubleparent',
-               'hyperactivitytroubleparent', 'extratroubleparent', 'supervise_set'],
+               'hyperactivitytroubleparent', 'extratroubleparent', 'supervise'],
     'depth': 1
+}, fields={
+    'supervise': SuperviseSerializer(read_only=True)
 })
 
-SuperviseSerializer = create_model_serializer(model=Supervise, app_label=app_label, name='SuperviseSerializer',
-                                              fields={
-                                                  'patient': PatientSerializer(read_only=True),
-                                                  'doctor': PersonSerializer(read_only=True),
-                                              },
-                                              options={
-                                                  'fields': ['patient', 'doctor', 'patient_id', 'doctor_id', 'id',
-                                                             'accepted'],
-                                                  'depth': 1
-                                              })
-RenderVousSerializer = create_model_serializer(model=RenderVous, name='Consultation', app_label=app_label)
+
+class RendezVousSerializer(ModelSerializer):
+    parent = PersonSerializer(read_only=True)
+    doctor = PersonSerializer(read_only=True)
+
+    class Meta:
+        model = RenderVous
+        fields = '__all__'
+
+
 DiagnosticSerializer = create_model_serializer(model=Diagnostic, name='DiagnosticSerializer', app_label=app_label)

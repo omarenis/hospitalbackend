@@ -9,7 +9,7 @@ from formparent.services import AnxityTroubleParentService, BehaviorTroubleParen
     SomatisationTroubleParentService
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
-from .models import DiagnosticSerializer, RenderVousSerializer, PatientSerializer, SuperviseSerializer
+from .models import DiagnosticSerializer, RendezVousSerializer, PatientSerializer, SuperviseSerializer
 from gestionusers.services import PersonService
 from .service import ConsultationService, DiagnosticService, PatientService, SuperviseService
 
@@ -103,8 +103,10 @@ class PatientViewSet(ViewSet):
             parent_id = request.data.get('parent_id')
             print(parent_id)
             if parent_id is None:
-                parent = PersonService().filter_by({'cin': request.data.get('parent').get('cin')}).first()
-                print(parent)
+                parent = PersonService().filter_by({
+                    'cin': request.data.get('parent').get('cin'),
+                    'typeUser': 'parent'
+                }).first()
                 parent = PersonService().create(request.data.get('parent')) if parent is None else parent
                 if isinstance(parent, Exception):
                     raise parent
@@ -152,7 +154,7 @@ class RenderVousViewSet(ViewSet):
     def get_permissions(self):
         return [IsAuthenticated()]
 
-    def __init__(self, fields=None, serializer_class=RenderVousSerializer, service=ConsultationService(), **kwargs):
+    def __init__(self, fields=None, serializer_class=RendezVousSerializer, service=ConsultationService(), **kwargs):
         if fields is None:
             fields = CONSULTATION_FIELDS
         super().__init__(fields, serializer_class, service, **kwargs)
@@ -160,7 +162,7 @@ class RenderVousViewSet(ViewSet):
 
 class SuperviseViewSet(ViewSet):
     def get_permissions(self):
-        return [AllowAny()]
+        return [IsAuthenticated()]
 
     def __init__(self, fields=None, serializer_class=SuperviseSerializer, service=SuperviseService(), **kwargs):
         if fields is None:
@@ -170,7 +172,7 @@ class SuperviseViewSet(ViewSet):
 
 class DiagnosticViewSet(ViewSet):
     def get_permissions(self):
-        return [AllowAny()]
+        return [IsAuthenticated()]
 
     def __init__(self, fields=None, serializer_class=DiagnosticSerializer, service=DiagnosticService(), **kwargs):
         if fields is None:

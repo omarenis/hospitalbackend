@@ -3,23 +3,21 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED
 from rest_framework_simplejwt.tokens import RefreshToken
-from common.views import ViewSet
-from gestionusers.models import DoctorSerializer, LocalisationSerializer, PersonSerializer
+from common.views import ViewSet, extract_get_data
+from gestionusers.models import DoctorSerializer, LocalisationSerializer, Parent, PersonSerializer
 from gestionusers.services import DoctorService, LocalisationService, PersonService
 
-
 PERSON_FIELDS = {
-                'name': {'type': 'text', 'required': True},
-                'familyName': {'type': 'text', 'required': True},
-                'cin': {'type': 'text', 'required': True},
-                'email': {'type': 'email', 'required': True},
-                'telephone': {'type': 'email', 'required': True},
-                'password': {'type': 'password', 'required': True},
-                'localisation_id': {'type': 'integer', 'required': False},
-                'typeUser': {'type': 'integer', 'required': True},
-                'is_active': {'type': 'boolean', 'required': True},
-            }
-
+    'name': {'type': 'text', 'required': True},
+    'familyName': {'type': 'text', 'required': True},
+    'cin': {'type': 'text', 'required': True},
+    'email': {'type': 'email', 'required': True},
+    'telephone': {'type': 'email', 'required': True},
+    'password': {'type': 'password', 'required': True},
+    'localisation_id': {'type': 'integer', 'required': False},
+    'typeUser': {'type': 'integer', 'required': True},
+    'is_active': {'type': 'boolean', 'required': True},
+}
 
 DOCTOR_FIELDS = {
     **PERSON_FIELDS,
@@ -69,7 +67,7 @@ class PersonViewSet(ViewSet):
         permission_classes = []
         if self.action == 'list' or self.action == 'retreive':
             permission_classes.append(IsAdminUser)
-        elif self.action == 'logout' or self.action == 'delete':
+        elif self.action == 'logout' or self.action == 'delete' or self.action == 'get_parents':
             permission_classes.append(IsAuthenticated)
         elif self.action == 'signup' or self.action == 'login':
             permission_classes.append(AllowAny)
@@ -81,6 +79,13 @@ class PersonViewSet(ViewSet):
             return Response(data={"error": "لم يتم العثور على المستخدم"}, status=404)
         else:
             return Response(data=self.serializer_class(user).data, status=200)
+
+    def get_parents(self, request, *args, **kwargs):
+        data = self.service.filter_by(extract_get_data(request=request, fields=self.fields)).distinct()
+        if data:
+            return Response(data=[self.serializer_class(i).data for i in data], status=200)
+        else:
+            return Response(data=[], status=200)
 
     def login(self, request, *args, **kwargs):
         cin = request.data.get('cin')
@@ -158,7 +163,9 @@ class DoctorViewSet(ViewSet):
 
 users_list, user_retrieve_update_delete = PersonViewSet.get_urls()
 doctor_list, doctor = DoctorViewSet.get_urls()
-
+parent_list = PersonViewSet.as_view({
+    'get': 'get_parents'
+})
 login = PersonViewSet.as_view({
     'post': 'login'
 })
@@ -176,5 +183,6 @@ urlpatterns = [
     path('signup', signup),
     path('logout', logout),
     path('doctors', doctor_list),
-    path('doctors/<int:_id>', doctor)
+    path('doctors/<int:_id>', doctor),
+    path('parents', parent_list)
 ]

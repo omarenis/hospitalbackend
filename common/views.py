@@ -39,7 +39,6 @@ class ViewSet(ModelViewSet):
         self.service = service
 
     def list(self, request, *args, **kwargs):
-        print(request.GET is None)
         _objects = self.service.filter_by(extract_get_data(request, self.fields)) if request.GET is not None \
             else self.service.list()
         if not _objects:
@@ -67,15 +66,15 @@ class ViewSet(ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         if pk is None:
             return Response(data={'error': 'id must not be null'}, status=HTTP_400_BAD_REQUEST)
-        _object = self.service.retrieve(_id=pk)
+        _object = self.service.retreive(_id=pk)
         if _object is None:
             return Response(data={'error': 'object not found'}, status=HTTP_404_NOT_FOUND)
         return Response(data=self.serializer_class(_object).data, status=HTTP_201_CREATED)
 
-    def delete(self, request, _id=None, *args, **kwargs):
-        if _id is None:
+    def delete(self, request, pk=None, *args, **kwargs):
+        if pk is None:
             return Response(data={'error': 'id must not be null'}, status=HTTP_400_BAD_REQUEST)
-        deleted = self.service.delete(_id)
+        deleted = self.service.delete(pk)
         if isinstance(deleted, Exception):
             return Response(data={'error': str(deleted)}, status=HTTP_404_NOT_FOUND)
         return Response(data={'response': True}, status=200)
