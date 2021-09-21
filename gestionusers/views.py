@@ -81,7 +81,10 @@ class PersonViewSet(ViewSet):
             return Response(data=self.serializer_class(user).data, status=200)
 
     def get_parents(self, request, *args, **kwargs):
-        data = self.service.filter_by(extract_get_data(request=request, fields=self.fields)).distinct()
+        print(request.GET)
+        print(extract_get_data(request=request))
+        data = Parent.objects.filter(**extract_get_data(request=request)).distinct()
+        print(data)
         if data:
             return Response(data=[self.serializer_class(i).data for i in data], status=200)
         else:

@@ -17,8 +17,6 @@ D
 contract.sol,0/6/06bf3ea8eed9d4c2485b4c8c28e2fe1fee975307
 7
 test.py,a/3/a36e355ddb203d7d4133221f339dc406cb9f480f
-N
-gestionpatient/repositories.py,7/2/72fd3eb5e84b673425b0426c989050427afaf697
 G
 gestionpatient/tests.py,4/f/4fd2206a1f392709c4c49faba4d6c856617087d7
 E
@@ -33,9 +31,13 @@ E
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
 L
 gestionusers/repositories.py,1/b/1b8dca875a77cb8046e20ebe2ad0942a58f4a456
-;
-ethereum.py,e/2/e28ffc8bc520a86d8434ea3f31a640a535cb232d
 ?
 backend/urls.py,e/8/e86ee5a9c15adf9e0f1eef0379032fc6cd65bd41
 ;
 doctors.sql,b/8/b805742db0acd950d59a24e8588171e3d888af54
+C
+backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
+N
+gestionpatient/repositories.py,7/2/72fd3eb5e84b673425b0426c989050427afaf697
+7
+data.db,9/f/9fab51ef5de3f03d095ab145913f5735c39533aa

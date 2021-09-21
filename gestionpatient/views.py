@@ -66,8 +66,8 @@ CONSULTATION_FIELDS = {
 
 DIAGNOSTIC_FIELDS = {
     'patient_id': {'type': 'int', 'required': True},
-    'doctor_id': {'type': 'int', 'required': True},
-    'content': {'type': 'str', 'required': True}
+    'diagnostic': {'type': 'str', 'required': True},
+    'consultation_id': {'type': 'int', 'required': True}
 }
 
 

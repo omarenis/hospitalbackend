@@ -18,5 +18,5 @@ class ConsultationService(Service):
 
 
 class DiagnosticService(Service):
-    def __init__(self, repository=DiagnosticRepository):
+    def __init__(self, repository=DiagnosticRepository()):
         super().__init__(repository)

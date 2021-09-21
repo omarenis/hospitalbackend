@@ -109,5 +109,6 @@ class Teacher(Person):
         db_table = 'teachers'
 
 
+ParentSerializer = create_model_serializer(model=Parent, name='ParentSerializer', app_label=app_label)
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)
 DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label)

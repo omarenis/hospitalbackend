@@ -5,7 +5,7 @@ from rest_framework.serializers import ModelSerializer
 from common.models import create_model_serializer
 import django.utils.timezone as timezone
 
-from gestionusers.models import PersonSerializer
+from gestionusers.models import ParentSerializer, PersonSerializer
 
 app_label = 'gestionpatient'
 doctor_model = 'gestionusers.Doctor'
@@ -61,14 +61,14 @@ PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializ
     'supervise': SuperviseSerializer(read_only=True)
 })
 
+DiagnosticSerializer = create_model_serializer(model=Diagnostic, name='DiagnosticSerializer', app_label=app_label)
+
 
 class RendezVousSerializer(ModelSerializer):
-    parent = PersonSerializer(read_only=True)
+    parent = ParentSerializer(read_only=True)
     doctor = PersonSerializer(read_only=True)
+    diagnostic = DiagnosticSerializer(read_only=True)
 
     class Meta:
         model = RenderVous
-        fields = '__all__'
-
-
-DiagnosticSerializer = create_model_serializer(model=Diagnostic, name='DiagnosticSerializer', app_label=app_label)
+        fields = ['parent_id', 'doctor_id', 'parent', 'doctor', 'date', 'accepted', 'diagnostic', 'id']

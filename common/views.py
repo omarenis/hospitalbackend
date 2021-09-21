@@ -23,11 +23,15 @@ def extract_data_with_validation(request, fields: dict):
     return output
 
 
-def extract_get_data(request, fields: dict):
+def extract_get_data(request):
     output = {}
-    for i in fields:
-        if request.GET.get(i) is not None:
-            output[i] = request.GET.get(i)
+    for i in request.GET:
+        try:
+            output[i] = int(request.GET.get(i)) if request.GET.get(i).find('.') == -1 else float(request.GET.get(i))
+        except Exception as exception:
+            print(exception)
+            output[i] = True if request.GET.get(i) == 'true' else False if request.GET.get(i) == 'false' \
+                else request.GET.get(i)
     return output
 
 
@@ -39,7 +43,7 @@ class ViewSet(ModelViewSet):
         self.service = service
 
     def list(self, request, *args, **kwargs):
-        _objects = self.service.filter_by(extract_get_data(request, self.fields)) if request.GET is not None \
+        _objects = self.service.filter_by(extract_get_data(request=request)) if request.GET is not None \
             else self.service.list()
         if not _objects:
             return Response(data=[], status=HTTP_200_OK)
@@ -69,6 +73,7 @@ class ViewSet(ModelViewSet):
         _object = self.service.retreive(_id=pk)
         if _object is None:
             return Response(data={'error': 'object not found'}, status=HTTP_404_NOT_FOUND)
+        _object = self.service.put(_id=pk, data=request.data)
         return Response(data=self.serializer_class(_object).data, status=HTTP_201_CREATED)
 
     def delete(self, request, pk=None, *args, **kwargs):
@@ -98,19 +103,3 @@ class FormViewSet(ViewSet):
             return Response(data={'error': str(score)}, status=HTTP_400_BAD_REQUEST)
         request.data['score'] = score
         return super().create(request=request, *args, **kwargs)
-
-
-class ParentFormViewSet(FormViewSet):
-    def __init__(self, fields: dict, serializer_class, service, **kwargs):
-        super().__init__(fields, serializer_class, service, **kwargs)
-
-    def list(self, request, *args, **kwargs):
-        patient_id = request.GET.get('patient_id')
-        if patient_id is not None:
-            data = self.service.filter_by({'patien__id': patient_id}).first()
-            if data is None:
-                return Response(data={'error': 'data not found'}, status=HTTP_404_NOT_FOUND)
-            else:
-                return Response(data=self.serializer_class(data).data, status=HTTP_200_OK)
-        else:
-            return super().create(request=request, *args, **kwargs)
