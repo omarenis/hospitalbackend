@@ -67,24 +67,22 @@ class PersonViewSet(ViewSet):
         permission_classes = []
         if self.action == 'list' or self.action == 'retreive':
             permission_classes.append(IsAdminUser)
-        elif self.action == 'logout' or self.action == 'delete' or self.action == 'get_parents':
+        elif self.action == 'logout' or self.action == 'delete' or self.action == 'get_parents'\
+                or self.action == 'update':
             permission_classes.append(IsAuthenticated)
         elif self.action == 'signup' or self.action == 'login':
             permission_classes.append(AllowAny)
         return [permission() for permission in permission_classes if permission is not None]
 
-    def retrieve(self, request, _id=None, *args, **kwargs):
-        user = self.service.retreive(_id)
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        user = self.service.retreive(pk)
         if user is None:
             return Response(data={"error": "لم يتم العثور على المستخدم"}, status=404)
         else:
             return Response(data=self.serializer_class(user).data, status=200)
 
     def get_parents(self, request, *args, **kwargs):
-        print(request.GET)
-        print(extract_get_data(request=request))
         data = Parent.objects.filter(**extract_get_data(request=request)).distinct()
-        print(data)
         if data:
             return Response(data=[self.serializer_class(i).data for i in data], status=200)
         else:
@@ -140,6 +138,7 @@ class PersonViewSet(ViewSet):
                 "typeUser": user.typeUser,
                 "name": user.name,
                 "familyName": user.familyName,
+                "email": user.email
             }, status=HTTP_201_CREATED)
 
     @staticmethod
@@ -181,11 +180,11 @@ logout = PersonViewSet.as_view({
 
 urlpatterns = [
     path('', users_list),
-    path('<int:_id>', user_retrieve_update_delete),
+    path('<int:pk>', user_retrieve_update_delete),
     path('login', login),
     path('signup', signup),
     path('logout', logout),
     path('doctors', doctor_list),
-    path('doctors/<int:_id>', doctor),
+    path('doctors/<int:pk>', doctor),
     path('parents', parent_list)
 ]

@@ -28,5 +28,6 @@ urlpatterns = [
     path('persons/', include('gestionusers.views')),
     path('patients/', include('gestionpatient.views')),
     path('patient/', include('formparent.views')),
-    path('patient/', include('formteacher.views'))
+    path('patient/', include('formteacher.views')),
+    path('messages/', include('chat.views'))
 ]
