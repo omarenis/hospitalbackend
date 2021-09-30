@@ -144,7 +144,7 @@ class PrivateData(object):
     def recuperate_data(self):
         if self.contract_address is None:
             self.deploy_contract()
-            data = pd.read_csv('patients.csv')
+            data = pd.read_csv(filename)
             for i in data.index:
                 try:
                     nonce = W3.eth.get_transaction_count(FIRST_ADDRESS)
