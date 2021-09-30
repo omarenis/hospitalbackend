@@ -30,8 +30,10 @@ def extract_get_data(request):
             output[i] = int(request.GET.get(i)) if request.GET.get(i).find('.') == -1 else float(request.GET.get(i))
         except Exception as exception:
             print(exception)
-            output[i] = True if request.GET.get(i) == 'true' else False if request.GET.get(i) == 'false' \
-                else request.GET.get(i)
+            if request.GET.get(i) == 'true' or request.GET.get(i) == 'false':
+                output[i] = request.GET.get(i) == 'true'
+            else:
+                output[i] = request.GET.get(i)
     return output
 
 

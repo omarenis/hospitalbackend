@@ -1,10 +1,13 @@
 import enum
+
+from django.db.models import QuerySet
+
 from backend.settings import PROJECT_ROOT
 from django.urls import path
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from common.models import text_field
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK,\
+    HTTP_204_NO_CONTENT
 from common.views import ViewSet, extract_data_with_validation
 from formparent.services import AnxityTroubleParentService, BehaviorTroubleParentService, ExtraTroubleParentService, \
     HyperActivityTroubleParentService, ImpulsivityTroubleParentService, LearningTroubleParentService, \
@@ -15,7 +18,9 @@ from .models import DiagnosticSerializer, RendezVousSerializer, PatientSerialize
 from gestionusers.services import PersonService
 from .service import ConsultationService, DiagnosticService, PatientService, SuperviseService
 from AI import FILE, classifier, train
+from ethereum import PRIVATE_DATA
 columns = list(FILE.columns[1:-1])
+PRIVATE_DATA.recuperate_data()
 
 
 class Quantify(enum.Enum):
@@ -37,9 +42,9 @@ def add_person(data: dict, type_user: str):
 
 
 PATIENT_FIELDS = {
-    'name': text_field,
-    'familyName': text_field,
-    'school': text_field,
+    'name': {'type': 'text', 'required': True},
+    'familyName': {'type': 'text', 'required': True},
+    'school': {'type': 'text', 'required': True},
     'birthdate': {'type': 'date', 'required': True},
     'parent_id': {'type': 'foreign_key', 'required': False},
     'parent': {'type': 'foreign_key', 'required': False},
@@ -102,7 +107,7 @@ class PatientViewSet(ViewSet):
 
     def save_data_to_csv_file(self):
         with open(f'{PROJECT_ROOT}/dataset1.csv') as f:
-            string = f"{len(f.readlines()) - 1},"
+            string = f"\n{len(f.readlines()) - 1},"
         for i in range(len(self.data_to_predict)-1):
             string += f"{self.data_to_predict[i]},"
         string += f"{self.data_to_predict[-1]}"
@@ -127,6 +132,37 @@ class PatientViewSet(ViewSet):
             raise _object
         return _object
 
+    def list(self, request, *args, **kwargs):
+        try:
+            output = []
+            print(list(request.GET.keys()) == [])
+            pts = self.service.list() if list(request.GET.keys()) == [] else self.service.filter_by(request.GET)
+            print(pts)
+            if isinstance(pts, QuerySet):
+                for i in pts:
+                    patient_private_data = PRIVATE_DATA.get_patient_by_id(i.id)
+                    print(patient_private_data)
+                    if isinstance(patient_private_data, Exception):
+                        return Response(data={'error': str(patient_private_data)},
+                                        status=HTTP_500_INTERNAL_SERVER_ERROR)
+                    output.append({**patient_private_data, **self.serializer_class(i).data})
+            else:
+                for i in pts:
+                    patient_private_data, patient_object = i
+                    output.append({**patient_private_data, **self.serializer_class(patient_object).data})
+            return Response(data=output, status=HTTP_200_OK)
+        except Exception as exception:
+            return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        patient_data = self.service.retreive(_id=pk)
+        if isinstance(patient_data, Exception):
+            return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        if isinstance(patient_data, tuple):
+            patient_object, patient_private_data = patient_data
+            return Response(data={**patient_private_data, **self.serializer_class(patient_object).data},
+                            status=HTTP_200_OK)
+
     def create(self, request, *args, **kwargs):
         train()
         data = extract_data_with_validation(request=request, fields=self.fields)
@@ -146,14 +182,15 @@ class PatientViewSet(ViewSet):
             if parent_id is None:
                 parent_id = add_person(data=request.data.get('parent'), type_user='parent')
             teacher_id = add_person(request.data.get('teacher'), type_user='teacher')
-            data['parent_id'] = parent_id
-            patient_object = self.service.filter_by(data=required_data).first()
+            required_data['parent_id'] = parent_id
+            patient_object, patient_private_data = self.service.filter_by(data=required_data)[0]
             if patient_object is None:
-                patient_object = self.service.create(required_data)
-                created = True
-                if isinstance(patient_object, Exception):
-                    raise patient_object
+                patient_data = self.service.create(required_data)
+                if isinstance(patient_data, Exception):
+                    raise patient_data
+                patient_object, patient_private_data = patient_data
             patient_id = patient_object.id
+            created = True
             for i in self.fields:
                 if request.data.get(i) is not None and not self.fields[i].get('required') \
                         and self.fields[i].get('type') != 'bool' and self.fields[i].get('type') != 'foreign_key':
@@ -167,11 +204,18 @@ class PatientViewSet(ViewSet):
             patient_object.sick = classifier.predict([self.data_to_predict])[0] == 1
             patient_object.save()
             self.save_data_to_csv_file()
-            return Response(data=self.serializer_class(patient_object).data, status=HTTP_201_CREATED)
+            return Response(data={**self.serializer_class(patient_object).data, **patient_private_data},
+                            status=HTTP_201_CREATED)
         except Exception as exception:
             if created:
                 self.service.delete(_id=patient_id)
             return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def delete(self, request, pk=None, *args, **kwargs):
+        deleted = self.service.delete(pk)
+        if isinstance(deleted, Exception):
+            return Response(data={'error': str(deleted)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(data={}, status=HTTP_204_NO_CONTENT)
 
 
 class RenderVousViewSet(ViewSet):
