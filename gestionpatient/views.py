@@ -135,13 +135,10 @@ class PatientViewSet(ViewSet):
     def list(self, request, *args, **kwargs):
         try:
             output = []
-            print(list(request.GET.keys()) == [])
             pts = self.service.list() if list(request.GET.keys()) == [] else self.service.filter_by(request.GET)
-            print(pts)
             if isinstance(pts, QuerySet):
                 for i in pts:
                     patient_private_data = PRIVATE_DATA.get_patient_by_id(i.id)
-                    print(patient_private_data)
                     if isinstance(patient_private_data, Exception):
                         return Response(data={'error': str(patient_private_data)},
                                         status=HTTP_500_INTERNAL_SERVER_ERROR)

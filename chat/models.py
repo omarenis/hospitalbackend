@@ -8,7 +8,7 @@ class Message(Model):
     receivers: TextField = TextField(null=False)
     subject: TextField = TextField(null=False)
     content: TextField = TextField(null=False)
-    date: DateTimeField = DateTimeField(null=False, default=timezone.now())
+    date: DateTimeField = DateTimeField(null=False, default=timezone.now)
     read: BooleanField = BooleanField(null=False, default=False)
 
     class Meta:

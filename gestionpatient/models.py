@@ -32,7 +32,7 @@ class Supervise(Model):
 class RenderVous(Model):
     doctor: ForeignKey = ForeignKey(to=doctor_model, on_delete=CASCADE, null=False)
     parent: ForeignKey = ForeignKey(to='gestionusers.Parent', on_delete=CASCADE, null=False)
-    date: DateTimeField = DateTimeField(null=False, default=timezone.now())
+    date: DateTimeField = DateTimeField(null=False, default=timezone.now)
     accepted: BooleanField = BooleanField(null=False, default=False)
 
     class Meta:

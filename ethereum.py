@@ -1,9 +1,10 @@
 import pandas as pd
 from solcx import compile_source, install_solc
 from web3 import Web3
+from backend.settings import BASE_DIR
 
 W3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
-compiled_sol = compile_source(open('contract.sol').read())
+compiled_sol = compile_source(open(BASE_DIR / 'contract.sol').read())
 FIRST_ADDRESS = W3.eth.account.privateKeyToAccount(
     '0x70f1384b24df3d2cdaca7974552ec28f055812ca5e4da7a0ccd0ac0f8a4a9b00').address
 contract_id, contract_interface = compiled_sol.popitem()
@@ -11,6 +12,8 @@ BYTECODE, ABI = contract_interface['bin'], contract_interface['abi']
 PRIVATE_KEY = "0x70f1384b24df3d2cdaca7974552ec28f055812ca5e4da7a0ccd0ac0f8a4a9b00"
 filename = "patients.csv"
 DATA = pd.read_csv('./'+filename)
+
+account = W3.eth.account.create('11608168')
 
 
 class PrivateData(object):
@@ -165,4 +168,4 @@ class PrivateData(object):
 
 
 PRIVATE_DATA = PrivateData()
-PRIVATE_DATA.recuperate_data()
+# PRIVATE_DATA.recuperate_data()
