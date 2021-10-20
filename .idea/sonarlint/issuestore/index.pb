@@ -33,8 +33,6 @@ C
 backend/urls.py,e/8/e86ee5a9c15adf9e0f1eef0379032fc6cd65bd41
 K
 static/3rdpartylicenses.txt,5/3/53a2475d0e90a249f1b173771b4b1b787300aa3c
-V
-&static/styles.4f711736bfef1a389156.css,8/c/8c216690f4108cd81e0e5b989dfbf7c31a302990
 ;
 ethereum.py,e/2/e28ffc8bc520a86d8434ea3f31a640a535cb232d
 N
@@ -42,4 +40,4 @@ N
 C
 backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
 S
-#static/main.b30b7e036876cb334251.js,e/3/e35f6b1226797f81f345bd9411dabeca34d3dfba
+#static/main.39dde608973e1ba393e7.js,4/0/407188705e246b13201cd8c25ed6e815552ce82b
