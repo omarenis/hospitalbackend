@@ -29,8 +29,6 @@ C
 data.db,9/f/9fab51ef5de3f03d095ab145913f5735c39533aa
 <
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
-?
-backend/urls.py,e/8/e86ee5a9c15adf9e0f1eef0379032fc6cd65bd41
 K
 static/3rdpartylicenses.txt,5/3/53a2475d0e90a249f1b173771b4b1b787300aa3c
 ;
@@ -39,5 +37,5 @@ N
 gestionpatient/repositories.py,7/2/72fd3eb5e84b673425b0426c989050427afaf697
 C
 backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
-S
-#static/main.39dde608973e1ba393e7.js,4/0/407188705e246b13201cd8c25ed6e815552ce82b
+A
+static/index.html,b/d/bd1335292519bbb90a7518e3aee1539f47a6149f
