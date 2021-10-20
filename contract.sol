@@ -1,5 +1,4 @@
-pragma solidity ^0.4;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8;
 contract PrivateData{
     uint256 numberPatients = 0;
     struct Patient{
@@ -29,7 +28,7 @@ contract PrivateData{
         for(uint256 i = 0; i < numberPatients; i++){
             if(patientsIds[i] == id){
                 patientsIds[i] = patientsIds[patientsIds.length -1];
-                patientsIds.length --;
+                delete patientsIds[patientsIds.lenght - 1];
                 return true;
             }
         }
