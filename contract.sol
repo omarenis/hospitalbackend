@@ -28,7 +28,7 @@ contract PrivateData{
         for(uint256 i = 0; i < numberPatients; i++){
             if(patientsIds[i] == id){
                 patientsIds[i] = patientsIds[patientsIds.length -1];
-                delete patientsIds[patientsIds.lenght - 1];
+                delete patientsIds[patientsIds.length - 1];
                 return true;
             }
         }
