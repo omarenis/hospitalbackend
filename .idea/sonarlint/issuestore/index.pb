@@ -39,3 +39,9 @@ V
 ethereum.py,e/2/e28ffc8bc520a86d8434ea3f31a640a535cb232d
 N
 gestionpatient/repositories.py,7/2/72fd3eb5e84b673425b0426c989050427afaf697
+C
+backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
+S
+#static/main.b30b7e036876cb334251.js,e/3/e35f6b1226797f81f345bd9411dabeca34d3dfba
+A
+static/index.html,b/d/bd1335292519bbb90a7518e3aee1539f47a6149f
