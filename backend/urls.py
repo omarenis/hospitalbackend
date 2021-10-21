@@ -22,7 +22,7 @@ def home():
 
 
 urlpatterns = [
-    path('/api', home),
+    path('api', home),
     path('admin/', admin.site.urls),
     path('api/persons/', include('gestionusers.views')),
     path('api/patients/', include('gestionpatient.views')),
