@@ -11,7 +11,7 @@ contract_id, contract_interface = compiled_sol.popitem()
 BYTECODE, ABI = contract_interface['bin'], contract_interface['abi']
 PRIVATE_KEY = "0x70f1384b24df3d2cdaca7974552ec28f055812ca5e4da7a0ccd0ac0f8a4a9b00"
 filename = "patients.csv"
-DATA = pd.read_csv('./'+filename)
+DATA = pd.read_csv(BASE_DIR / filename)
 
 account = W3.eth.account.create('11608168')
 
