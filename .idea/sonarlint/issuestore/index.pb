@@ -33,5 +33,3 @@ C
 ethereum.py,e/2/e28ffc8bc520a86d8434ea3f31a640a535cb232d
 N
 gestionpatient/repositories.py,7/2/72fd3eb5e84b673425b0426c989050427afaf697
-C
-backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
