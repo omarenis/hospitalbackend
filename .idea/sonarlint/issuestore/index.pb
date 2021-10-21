@@ -29,13 +29,9 @@ C
 data.db,9/f/9fab51ef5de3f03d095ab145913f5735c39533aa
 <
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
-K
-static/3rdpartylicenses.txt,5/3/53a2475d0e90a249f1b173771b4b1b787300aa3c
 ;
 ethereum.py,e/2/e28ffc8bc520a86d8434ea3f31a640a535cb232d
 N
 gestionpatient/repositories.py,7/2/72fd3eb5e84b673425b0426c989050427afaf697
 C
 backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
-A
-static/index.html,b/d/bd1335292519bbb90a7518e3aee1539f47a6149f

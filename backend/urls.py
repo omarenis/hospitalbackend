@@ -19,9 +19,9 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('persons/', include('gestionusers.views')),
-    path('patients/', include('gestionpatient.views')),
-    path('patient/', include('formparent.views')),
-    path('patient/', include('formteacher.views')),
-    path('messages/', include('chat.views'))
+    path('api/persons/', include('gestionusers.views')),
+    path('api/patients/', include('gestionpatient.views')),
+    path('api/patient/', include('formparent.views')),
+    path('api/patient/', include('formteacher.views')),
+    path('api/messages/', include('chat.views'))
 ]
