@@ -47,6 +47,8 @@ class LocalisationViewSet(ViewSet):
 
 
 class PersonViewSet(ViewSet):
+    verification = {'id': None, 'code': None}
+
     def __init__(self, serializer_class=PersonSerializer, service=PersonService(), fields=None, **kwargs):
         if fields is None:
             fields = {
@@ -63,7 +65,6 @@ class PersonViewSet(ViewSet):
             }
         super().__init__(fields=fields, serializer_class=serializer_class, service=service, **kwargs)
         self.localisation_service = LocalisationService()
-        self.verification = {"code": None, "id": None}
 
     def get_permissions(self):
         permission_classes = []
