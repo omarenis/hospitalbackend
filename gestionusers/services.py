@@ -9,6 +9,7 @@ from telesign.util import random_with_n_digits
 
 def generate_sms_auth_code(phone_number):
     verify_code = random_with_n_digits(5)
+    print(type(verify_code))
     message = "Your code is {}".format(verify_code)
     message_type = "OTP"
     messaging = MessagingClient(CONSUMER_ID, API_KEY)

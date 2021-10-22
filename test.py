@@ -64,7 +64,7 @@ message_type = "OTP"
 
 messaging = MessagingClient(customer_id, api_key)
 response = messaging.message(phone_number, message, message_type)
-print(verify_code)
+print(type(verify_code))
 user_entered_verify_code = input("Please enter the verification code you were sent: ")
 
 if verify_code == user_entered_verify_code.strip():
