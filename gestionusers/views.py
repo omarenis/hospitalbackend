@@ -166,7 +166,7 @@ class PersonViewSet(ViewSet):
                 return Response({'error': 'بطاقة التعريف الوطنية الخاصة بك غير مسجّل في الموقع\nالرجاء التسجيل في '
                                           'الموقع بإستعمال بطاقة التعريف'})
 
-    def generate_verify_code(self, request, *args, **kwargs):
+    def verify_code(self, request, *args, **kwargs):
         if request.data.get('code') != VERIFICATION['code']:
             return Response(
                 data={
