@@ -54,6 +54,13 @@ class PersonService(Service):
         else:
             return Exception('الحساب غير موجود')
 
+    def reset_password(self, _id: int, password):
+        user = self.repository.retreive(_id)
+        if user is None:
+            return Exception("user not found")
+        else:
+            user.set_password(password)
+
 
 class DoctorService(Service):
     def __init__(self, repository=DoctorRepository()):

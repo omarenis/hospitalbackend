@@ -63,8 +63,7 @@ class PersonViewSet(ViewSet):
             }
         super().__init__(fields=fields, serializer_class=serializer_class, service=service, **kwargs)
         self.localisation_service = LocalisationService()
-        self.code = None
-        self.user = None
+        self.verification = {"code": None, "id": None}
 
     def get_permissions(self):
         permission_classes = []
@@ -157,10 +156,9 @@ class PersonViewSet(ViewSet):
         else:
             users = self.service.filter_by({'cin': request.data.get('cin')})
             if users:
-                self.user = users[0]
-                telephone = self.user.telephone
+                self.verification['id'] = users[0].id
                 try:
-                    self.code = generate_sms_auth_code(telephone)
+                    self.verification["code"] = generate_sms_auth_code(users[0].telephone)
                 except Exception as exception:
                     return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
                 return Response(data={'response': 'code sent as sms to your phone'})
@@ -169,14 +167,16 @@ class PersonViewSet(ViewSet):
                                           'الموقع بإستعمال بطاقة التعريف'})
 
     def verify_code(self, request, *args, **kwargs):
-        if request.data.get('code') != self.code:
+        if request.data.get('code') != self.verification['code']:
             return Response(data={
                 'error': 'الرمز المكتوب غير صحيح',
-                'correct_code': self.code,
+                'correct_code': self.verification['code'],
                 'inserted_code': request.data.get('code')
             }, status=HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            self.user.set_password(request.data.get('password'))
+            verified = self.service.change_password(self.verification['id'], request.data.get('password'))
+            if isinstance(verified, Exception):
+                return Response(data={'error': str(verified)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
             return Response(data={'response': 'تم تغيير كلمة السر بنجاح'}, status=HTTP_201_CREATED)
 
 
