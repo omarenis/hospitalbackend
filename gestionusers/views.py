@@ -8,6 +8,7 @@ from common.views import ViewSet, extract_get_data
 from gestionusers.models import DoctorSerializer, LocalisationSerializer, Parent, PersonSerializer
 from gestionusers.services import DoctorService, LocalisationService, PersonService, generate_sms_auth_code
 
+VERIFICATION = {'user': None, 'code': None}
 PERSON_FIELDS = {
     'name': {'type': 'text', 'required': True},
     'familyName': {'type': 'text', 'required': True},
@@ -47,8 +48,6 @@ class LocalisationViewSet(ViewSet):
 
 
 class PersonViewSet(ViewSet):
-    verification = {'id': None, 'code': None}
-
     def __init__(self, serializer_class=PersonSerializer, service=PersonService(), fields=None, **kwargs):
         if fields is None:
             fields = {
@@ -157,9 +156,9 @@ class PersonViewSet(ViewSet):
         else:
             users = self.service.filter_by({'cin': request.data.get('cin')})
             if users:
-                self.verification['id'] = users[0].id
+                VERIFICATION['user'] = users[0]
                 try:
-                    self.verification["code"] = generate_sms_auth_code(users[0].telephone)
+                    VERIFICATION['code'] = generate_sms_auth_code(users[0].telephone)
                 except Exception as exception:
                     return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
                 return Response(data={'response': 'code sent as sms to your phone'})
@@ -167,17 +166,15 @@ class PersonViewSet(ViewSet):
                 return Response({'error': 'بطاقة التعريف الوطنية الخاصة بك غير مسجّل في الموقع\nالرجاء التسجيل في '
                                           'الموقع بإستعمال بطاقة التعريف'})
 
-    def verify_code(self, request, *args, **kwargs):
-        if request.data.get('code') != self.verification['code']:
+    def generate_verify_code(self, request, *args, **kwargs):
+        if request.data.get('code') != VERIFICATION['code']:
             return Response(data={
                 'error': 'الرمز المكتوب غير صحيح',
-                'correct_code': self.verification['code'],
+                'correct_code': VERIFICATION['code'],
                 'inserted_code': request.data.get('code')
             }, status=HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            verified = self.service.change_password(self.verification['id'], request.data.get('password'))
-            if isinstance(verified, Exception):
-                return Response(data={'error': str(verified)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            self.service.reset_password(VERIFICATION['id'], request.data.get('password'))
             return Response(data={'response': 'تم تغيير كلمة السر بنجاح'}, status=HTTP_201_CREATED)
 
 

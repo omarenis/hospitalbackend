@@ -41,6 +41,8 @@ class LocalisationService(Service):
 
 
 class PersonService(Service):
+    verification = {'id': None, 'code': None}
+
     def __init__(self, repository=UserRepository()):
         super().__init__(repository)
 
