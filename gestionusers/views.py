@@ -1,11 +1,12 @@
 from django.urls import path
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, \
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import RefreshToken
 from common.views import ViewSet, extract_get_data
 from gestionusers.models import DoctorSerializer, LocalisationSerializer, Parent, PersonSerializer
-from gestionusers.services import DoctorService, LocalisationService, PersonService
+from gestionusers.services import DoctorService, LocalisationService, PersonService, generate_sms_auth_code
 
 PERSON_FIELDS = {
     'name': {'type': 'text', 'required': True},
@@ -62,12 +63,14 @@ class PersonViewSet(ViewSet):
             }
         super().__init__(fields=fields, serializer_class=serializer_class, service=service, **kwargs)
         self.localisation_service = LocalisationService()
+        self.code = None
+        self.user = None
 
     def get_permissions(self):
         permission_classes = []
         if self.action == 'list' or self.action == 'retreive':
             permission_classes.append(IsAdminUser)
-        elif self.action == 'logout' or self.action == 'delete' or self.action == 'get_parents'\
+        elif self.action == 'logout' or self.action == 'delete' or self.action == 'get_parents' \
                 or self.action == 'update':
             permission_classes.append(IsAuthenticated)
         elif self.action == 'signup' or self.action == 'login':
@@ -147,6 +150,31 @@ class PersonViewSet(ViewSet):
         token.blacklist()
         return Response(status=HTTP_204_NO_CONTENT)
 
+    def generate_code(self, request, *args, **kwargs):
+        if request.data.get('cin') is None:
+            return Response(data={'error': 'يجب عليك إدخال بطاقة التعريف الوطنية الخاصة بك'},
+                            status=HTTP_400_BAD_REQUEST)
+        else:
+            users = self.service.filter_by({'cin': request.data.get('cin')})
+            if users:
+                self.user = users[0]
+                telephone = self.user.telephone
+                try:
+                    self.code = generate_sms_auth_code(telephone)
+                except Exception as exception:
+                    return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(data={'response': 'code sent as sms to your phone'})
+            else:
+                return Response({'error': 'بطاقة التعريف الوطنية الخاصة بك غير مسجّل في الموقع\nالرجاء التسجيل في '
+                                          'الموقع بإستعمال بطاقة التعريف'})
+
+    def verify_code(self, request, *args, **kwargs):
+        if request.data.get('code') != self.code:
+            return Response(data={'error': 'الرمز المكتوب غير صحيح'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            self.user.set_password(request.data.get('password'))
+            return Response(data={'response': 'تم تغيير كلمة السر بنجاح'}, status=HTTP_201_CREATED)
+
 
 class DoctorViewSet(ViewSet):
     def get_permissions(self):
@@ -177,7 +205,12 @@ signup = PersonViewSet.as_view({
 logout = PersonViewSet.as_view({
     'post': 'logout'
 })
-
+generate_sms_code = PersonViewSet.as_view({
+    'post': 'generate_code'
+})
+verify_code = PersonViewSet.as_view({
+    'post': 'verify_code'
+})
 urlpatterns = [
     path('', users_list),
     path('<int:pk>', user_retrieve_update_delete),
@@ -186,5 +219,7 @@ urlpatterns = [
     path('logout', logout),
     path('doctors', doctor_list),
     path('doctors/<int:pk>', doctor),
-    path('parents', parent_list)
+    path('parents', parent_list),
+    path('generate_code', generate_sms_code),
+    path('verify_code', verify_code)
 ]

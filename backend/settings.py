@@ -19,6 +19,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = '/static/'
+CONSUMER_ID = "55341A14-DF68-4FED-8A75-953CC85136E5"
+API_KEY = "jbuZ01njFKDOFHLwmehzeTBsF1i+72O1NY/TeGLH8BwsZmrRblI4pIOJ3cV4zwBtXImIiHXptshJYqQT9Uw2oA=="
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!

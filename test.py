@@ -11,12 +11,14 @@
 # contract = web3.eth.contract(address=token_address, ABI=ABI)
 # print(contract.caller.getPatientById(1))
 #
-from solc import compile_source
-from web3 import Web3
+from __future__ import print_function
 
-w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
-encrypted_key = open('/home/trikiomar/TP2/noeud2/keystore/UTC--2021-09-09T10-29-29.732285980Z'
-                     '--7d4e323e3a056899bd18aa8d80208c202a6b9c5c', 'r').read()
+from solc import compile_source
+# from web3 import Web3
+#
+# w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
+# encrypted_key = open('/home/trikiomar/TP2/noeud2/keystore/UTC--2021-09-09T10-29-29.732285980Z'
+#                      '--7d4e323e3a056899bd18aa8d80208c202a6b9c5c', 'r').read()
 
 
 # result = W3.eth.send_raw_transaction(signed_tx.rawTransaction)
@@ -45,3 +47,27 @@ encrypted_key = open('/home/trikiomar/TP2/noeud2/keystore/UTC--2021-09-09T10-29-
 #     pprint.pprint(receipt["status"])
 # else:
 #     print("Gas cost exceeds 100000")
+from telesign.messaging import MessagingClient
+from telesign.util import random_with_n_digits
+import sys
+
+if sys.version[0] == "3":
+    raw_input = input
+customer_id = "55341A14-DF68-4FED-8A75-953CC85136E5"
+api_key = "jbuZ01njFKDOFHLwmehzeTBsF1i+72O1NY/TeGLH8BwsZmrRblI4pIOJ3cV4zwBtXImIiHXptshJYqQT9Uw2oA=="
+
+phone_number = "+21644320549"
+verify_code = random_with_n_digits(5)
+
+message = "Your code is {}".format(verify_code)
+message_type = "OTP"
+
+messaging = MessagingClient(customer_id, api_key)
+response = messaging.message(phone_number, message, message_type)
+print(verify_code)
+user_entered_verify_code = input("Please enter the verification code you were sent: ")
+
+if verify_code == user_entered_verify_code.strip():
+    print("Your code is correct.")
+else:
+    print("Your code is incorrect.")

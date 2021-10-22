@@ -1,6 +1,19 @@
 from django.contrib.auth.hashers import check_password
+
+from backend.settings import API_KEY, CONSUMER_ID
 from common.services import Service
 from .repositories import DoctorRepository, LocalisationRepository, UserRepository
+from telesign.messaging import MessagingClient
+from telesign.util import random_with_n_digits
+
+
+def generate_sms_auth_code(phone_number):
+    verify_code = random_with_n_digits(5)
+    message = "Your code is {}".format(verify_code)
+    message_type = "OTP"
+    messaging = MessagingClient(CONSUMER_ID, API_KEY)
+    messaging.message(phone_number, message, message_type)
+    return verify_code
 
 
 def get_or_create_parent(data):

@@ -100,6 +100,7 @@ Send2Trash==1.8.0
 six==1.16.0
 solc==0.0.0a0
 sqlparse==0.4.2
+telesign==2.2.2
 terminado==0.12.1
 testpath==0.5.0
 threadpoolctl==2.2.0
