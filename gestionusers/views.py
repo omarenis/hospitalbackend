@@ -168,11 +168,13 @@ class PersonViewSet(ViewSet):
 
     def generate_verify_code(self, request, *args, **kwargs):
         if request.data.get('code') != VERIFICATION['code']:
-            return Response(data={
-                'error': 'الرمز المكتوب غير صحيح',
-                'correct_code': VERIFICATION['code'],
-                'inserted_code': request.data.get('code')
-            }, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={
+                    'error': 'الرمز المكتوب غير صحيح',
+                    'correct_code': VERIFICATION['code'],
+                    'inserted_code': request.data.get('code')
+                },
+                status=HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             self.service.reset_password(VERIFICATION['id'], request.data.get('password'))
             return Response(data={'response': 'تم تغيير كلمة السر بنجاح'}, status=HTTP_201_CREATED)
