@@ -169,7 +169,7 @@ class PersonViewSet(ViewSet):
                                           'الموقع بإستعمال بطاقة التعريف'})
 
     def verify_code(self, request, *args, **kwargs):
-        if request.data.get('code') != self.code:
+        if int(request.data.get('code')) != self.code:
             return Response(data={'error': 'الرمز المكتوب غير صحيح'}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             self.user.set_password(request.data.get('password'))
