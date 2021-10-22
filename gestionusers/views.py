@@ -8,7 +8,7 @@ from common.views import ViewSet, extract_get_data
 from gestionusers.models import DoctorSerializer, LocalisationSerializer, Parent, PersonSerializer
 from gestionusers.services import DoctorService, LocalisationService, PersonService, generate_sms_auth_code
 
-VERIFICATION = {'user': None, 'code': None}
+VERIFICATION = {'id': None, 'code': None}
 PERSON_FIELDS = {
     'name': {'type': 'text', 'required': True},
     'familyName': {'type': 'text', 'required': True},
@@ -72,7 +72,7 @@ class PersonViewSet(ViewSet):
         elif self.action == 'logout' or self.action == 'delete' or self.action == 'get_parents' \
                 or self.action == 'update':
             permission_classes.append(IsAuthenticated)
-        elif self.action == 'signup' or self.action == 'login':
+        else:
             permission_classes.append(AllowAny)
         return [permission() for permission in permission_classes if permission is not None]
 
@@ -156,7 +156,7 @@ class PersonViewSet(ViewSet):
         else:
             users = self.service.filter_by({'cin': request.data.get('cin')})
             if users:
-                VERIFICATION['user'] = users[0]
+                VERIFICATION['id'] = users[0].id
                 try:
                     VERIFICATION['code'] = generate_sms_auth_code(users[0].telephone)
                 except Exception as exception:
