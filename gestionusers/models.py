@@ -21,9 +21,9 @@ Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALI
 
 
 class UserManager(BaseUserManager):
-    def create(self, name, familyName, cin, telephone, typeUser, is_active=False, localisation_id=None, email=None,
-               password=None, speciality=None):
-        data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone, 'accountId': None,
+    def create(self, name, familyName, cin, telephone, typeUser, address=None, is_active=False, localisation_id=None,
+               email=None, password=None, speciality=None):
+        data = {'name': name, 'familyName': familyName, 'cin': cin, 'telephone': telephone, 'address': address,
                 'is_active': is_active, 'password': password, 'email': self.normalize_email(email) if email else email,
                 'localisation_id': localisation_id, 'typeUser': typeUser}
         try:
@@ -38,6 +38,7 @@ class UserManager(BaseUserManager):
                 user = Teacher(**data)
             elif typeUser == 'superdoctor':
                 data['is_active'] = True
+                is_active = True
                 user = Person(**data)
             elif typeUser == 'admin':
                 data['is_active'] = True
@@ -48,6 +49,7 @@ class UserManager(BaseUserManager):
                 raise AttributeError('user must be parent or doctor')
             user.username = name + ' ' + familyName + cin
             if is_active:
+                print(password)
                 user.set_password(password)
             else:
                 randomstr = ''.join(random.choices(string.ascii_letters + string.digits, k=1258))
@@ -65,7 +67,7 @@ PERSON_FIElDS = {
     'email': TextField(null=True),
     'telephone': TextField(null=False),
     'password': TextField(null=False),
-    'accountId': TextField(null=True, db_column='account_id'),
+    'address': TextField(null=True, db_column='address'),
     'is_active': BooleanField(null=False, default=False),
     'typeUser': TextField(null=False, db_column='type_user'),
     'localisation': ForeignKey(null=True, to='Localisation', on_delete=SET_NULL),

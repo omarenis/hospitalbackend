@@ -18,9 +18,7 @@ from .models import DiagnosticSerializer, RendezVousSerializer, PatientSerialize
 from gestionusers.services import PersonService
 from .service import ConsultationService, DiagnosticService, PatientService, SuperviseService
 from AI import FILE, classifier, train
-from ethereum import PRIVATE_DATA
 columns = list(FILE.columns[1:-1])
-PRIVATE_DATA.recuperate_data()
 
 
 class Quantify(enum.Enum):
@@ -134,31 +132,34 @@ class PatientViewSet(ViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
+            filter_dictinary = {}
+            for i in request.GET:
+                filter_dictinary[i] = request.GET.get(i)
             output = []
-            pts = self.service.list() if list(request.GET.keys()) == [] else self.service.filter_by(request.GET)
+            print(request.GET.get('parent_id'))
+            pts = self.service.list() if list(request.GET.keys()) == [] else self.service.filter_by(filter_dictinary)
+            print(pts)
             if isinstance(pts, QuerySet):
                 for i in pts:
-                    patient_private_data = PRIVATE_DATA.get_patient_by_id(i.id)
-                    if isinstance(patient_private_data, Exception):
-                        return Response(data={'error': str(patient_private_data)},
-                                        status=HTTP_500_INTERNAL_SERVER_ERROR)
-                    output.append({**patient_private_data, **self.serializer_class(i).data})
+                    output.append(self.serializer_class(i).data)
             else:
                 for i in pts:
                     patient_private_data, patient_object = i
-                    output.append({**patient_private_data, **self.serializer_class(patient_object).data})
+                    output.append(self.serializer_class(patient_object).data)
             return Response(data=output, status=HTTP_200_OK)
         except Exception as exception:
             return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         patient_data = self.service.retreive(_id=pk)
+        print(patient_data)
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
-        if isinstance(patient_data, tuple):
-            patient_object, patient_private_data = patient_data
-            return Response(data={**patient_private_data, **self.serializer_class(patient_object).data},
-                            status=HTTP_200_OK)
+        return Response(self.serializer_class(patient_data).data, status=HTTP_200_OK)
+        # if isinstance(patient_data, tuple):
+        #     patient_object, patient_private_data = patient_data
+        #     return Response(data={**patient_private_data, **self.serializer_class(patient_object).data},
+        #                     status=HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         train()
@@ -180,14 +181,14 @@ class PatientViewSet(ViewSet):
                 parent_id = add_person(data=request.data.get('parent'), type_user='parent')
             teacher_id = add_person(request.data.get('teacher'), type_user='teacher')
             required_data['parent_id'] = parent_id
-            patient_object, patient_private_data = self.service.filter_by(data=required_data)[0]
+            patient_object = self.service.filter_by(required_data).first()
             if patient_object is None:
-                patient_data = self.service.create(required_data)
-                if isinstance(patient_data, Exception):
-                    raise patient_data
-                patient_object, patient_private_data = patient_data
+                patient_object = self.service.create(required_data)
+            if isinstance(patient_object, Exception):
+                raise patient_object
+            else:
+                created = True
             patient_id = patient_object.id
-            created = True
             for i in self.fields:
                 if request.data.get(i) is not None and not self.fields[i].get('required') \
                         and self.fields[i].get('type') != 'bool' and self.fields[i].get('type') != 'foreign_key':
@@ -201,8 +202,7 @@ class PatientViewSet(ViewSet):
             patient_object.sick = classifier.predict([self.data_to_predict])[0] == 1
             patient_object.save()
             self.save_data_to_csv_file()
-            return Response(data={**self.serializer_class(patient_object).data, **patient_private_data},
-                            status=HTTP_201_CREATED)
+            return Response(data=self.serializer_class(patient_object).data, status=HTTP_201_CREATED)
         except Exception as exception:
             if created:
                 self.service.delete(_id=patient_id)

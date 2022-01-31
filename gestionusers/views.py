@@ -1,3 +1,7 @@
+import base64
+import hashlib
+
+from cryptography.fernet import Fernet
 from django.urls import path
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -6,7 +10,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_40
 from rest_framework_simplejwt.tokens import RefreshToken
 from common.views import ViewSet, extract_get_data
 from gestionusers.models import DoctorSerializer, LocalisationSerializer, Parent, PersonSerializer
-from gestionusers.services import DoctorService, LocalisationService, PersonService, generate_sms_auth_code
+from gestionusers.services import DoctorService, LocalisationService, PersonService
 
 VERIFICATION = {'id': None, 'code': None}
 PERSON_FIELDS = {
@@ -25,6 +29,11 @@ DOCTOR_FIELDS = {
     **PERSON_FIELDS,
     'speciality': {'type': 'text', 'required': True}
 }
+FERNET = Fernet(
+    base64.b64encode(hashlib.pbkdf2_hmac("sha256", "hEq52fRbu1WGrU2TIsZ3vtFf7xJp2SMOEC4-olvJ3hA=".encode("ascii"),
+                                         "hEq52fRbu1WGrU2TIsZ3vtFf7xJp2SMOEC4".encode("ascii"),
+                                         1000))
+)
 
 
 class LocalisationViewSet(ViewSet):
@@ -91,6 +100,7 @@ class PersonViewSet(ViewSet):
             return Response(data=[], status=200)
 
     def login(self, request, *args, **kwargs):
+        print(request.data)
         cin = request.data.get('cin')
         if cin is None:
             return Response(data={"error": "الحساب غير موجود"}, status=400)
@@ -128,7 +138,7 @@ class PersonViewSet(ViewSet):
                 return Response(data={'error': 'لقد تم بالفعل إنشاء حساب بهذا الرقم'}, status=HTTP_401_UNAUTHORIZED)
             self.service.put(_id=user.id, data=data)
         else:
-            user = self.service.create(data)
+            user = self.service.signup(data)
         if isinstance(user, Exception):
             return Response(data={"error": str(user)}, status=500)
         else:
@@ -149,35 +159,37 @@ class PersonViewSet(ViewSet):
         token.blacklist()
         return Response(status=HTTP_204_NO_CONTENT)
 
-    def generate_code(self, request, *args, **kwargs):
-        if request.data.get('cin') is None:
-            return Response(data={'error': 'يجب عليك إدخال بطاقة التعريف الوطنية الخاصة بك'},
-                            status=HTTP_400_BAD_REQUEST)
-        else:
-            users = self.service.filter_by({'cin': request.data.get('cin')})
-            if users:
-                VERIFICATION['id'] = users[0].id
-                try:
-                    VERIFICATION['code'] = generate_sms_auth_code(users[0].telephone)
-                except Exception as exception:
-                    return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
-                return Response(data={'response': 'code sent as sms to your phone'})
-            else:
-                return Response({'error': 'بطاقة التعريف الوطنية الخاصة بك غير مسجّل في الموقع\nالرجاء التسجيل في '
-                                          'الموقع بإستعمال بطاقة التعريف'})
-
-    def verify_code(self, request, *args, **kwargs):
-        if request.data.get('code') != VERIFICATION['code']:
-            return Response(
-                data={
-                    'error': 'الرمز المكتوب غير صحيح',
-                    'correct_code': VERIFICATION['code'],
-                    'inserted_code': request.data.get('code')
-                },
-                status=HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            self.service.reset_password(VERIFICATION['id'], request.data.get('password'))
-            return Response(data={'response': 'تم تغيير كلمة السر بنجاح'}, status=HTTP_201_CREATED)
+    # def generate_code(self, request, *args, **kwargs):
+    #     if request.data.get('cin') is None:
+    #         return Response(data={'error': 'يجب عليك إدخال بطاقة التعريف الوطنية الخاصة بك'},
+    #                         status=HTTP_400_BAD_REQUEST)
+    #     else:
+    #         users = self.service.filter_by({'cin': request.data.get('cin')})
+    #         if users:
+    #             VERIFICATION['id'] = users[0].id
+    #             try:
+    #                 VERIFICATION['code'] = generate_sms_auth_code(users[0].telephone)
+    #             except Exception as exception:
+    #                 return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+    #             return Response(data={
+    #                 'response': 'code sent as sms to your phone'
+    #             })
+    #         else:
+    #             return Response({'error': 'بطاقة التعريف الوطنية الخاصة بك غير مسجّل في الموقع\nالرجاء التسجيل في '
+    #                                       'الموقع بإستعمال بطاقة التعريف'})
+    #
+    # def verify_code(self, request, *args, **kwargs):
+    #     if request.data.get('code') != request.data.get('correctCode'):
+    #         return Response(
+    #             data={
+    #                 'error': 'الرمز المكتوب غير صحيح',
+    #                 'correct_code': request.data.get('correctCode'),
+    #                 'inserted_code': request.data.get('code')
+    #             },
+    #             status=HTTP_500_INTERNAL_SERVER_ERROR)
+    #     else:
+    #         self.service.reset_password(VERIFICATION['id'], request.data.get('password'))
+    #         return Response(data={'response': 'تم تغيير كلمة السر بنجاح'}, status=HTTP_201_CREATED)
 
 
 class DoctorViewSet(ViewSet):

@@ -46,13 +46,5 @@ contract PrivateData{
         patients[id] = patient;
     }
 
-    function filterPatient(string memory name, string memory familyName, string memory school, string memory birthdate, uint256 parentId) public view returns (Patient memory){
-        for(uint i = 0; i < patientsIds.length; i++){
-            if(keccak256(bytes(patients[patientsIds[i]].name)) == keccak256(bytes(name)) && keccak256(bytes(patients[patientsIds[i]].familyName)) == keccak256(bytes(familyName))
-            && keccak256(bytes(patients[patientsIds[i]].birthdate)) == keccak256(bytes(birthdate)) && keccak256(bytes(patients[patientsIds[i]].school)) == keccak256(bytes(school)) &&
-            patients[patientsIds[i]].parentId == parentId){
-                return patients[patientsIds[i]];
-            }
-        }
-    }
+
 }

@@ -13,6 +13,10 @@ doctor_model = 'gestionusers.Doctor'
 
 class Patient(Model):
     parent = ForeignKey(to='gestionusers.Parent', on_delete=CASCADE, null=True)
+    name: TextField = TextField(null=False)
+    familyName: TextField = TextField(null=False)
+    birthdate: DateField = DateField(null=False)
+    school: TextField = TextField(null=False)
     sick: BooleanField = BooleanField(default=False, null=False)
 
     class Meta:
@@ -49,10 +53,14 @@ class Diagnostic(Model):
 
 
 SuperviseSerializer = create_model_serializer(model=Supervise, app_label=app_label, name='SuperviseSerializer')
+PatientGetSerializer = create_model_serializer(model=Patient, name='PatientGetSerializer', app_label=app_label,
+                                               options={
+                                                   'fields': 'all'
+                                               })
 PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializer', app_label=app_label, options={
-    'fields': ['id', 'parent', 'behaviortroubleparent', 'impulsivitytroubleparent', 'learningtroubleparent',
-               'anxitytroubleparent', 'somatisationtroubleparent', 'hyperactivitytroubleparent',
-               'extratroubleparent', 'supervise', 'sick'],
+    'fields': ['id', 'name', 'familyName', 'birthdate', 'school', 'parent', 'behaviortroubleparent',
+               'impulsivitytroubleparent', 'learningtroubleparent', 'anxitytroubleparent',
+               'somatisationtroubleparent', 'hyperactivitytroubleparent', 'extratroubleparent', 'supervise', 'sick'],
     'depth': 1
 }, fields={
     'supervise': SuperviseSerializer(read_only=True)
