@@ -136,9 +136,7 @@ class PatientViewSet(ViewSet):
             for i in request.GET:
                 filter_dictinary[i] = request.GET.get(i)
             output = []
-            print(request.GET.get('parent_id'))
             pts = self.service.list() if list(request.GET.keys()) == [] else self.service.filter_by(filter_dictinary)
-            print(pts)
             if isinstance(pts, QuerySet):
                 for i in pts:
                     output.append(self.serializer_class(i).data)
@@ -152,7 +150,6 @@ class PatientViewSet(ViewSet):
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         patient_data = self.service.retreive(_id=pk)
-        print(patient_data)
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(self.serializer_class(patient_data).data, status=HTTP_200_OK)
