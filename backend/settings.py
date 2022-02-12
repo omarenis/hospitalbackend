@@ -50,10 +50,10 @@ SECRET_KEY = 'kAb55BSKW=ev?vu-9GzP3Lke*&*7rt8#5XzRvtvSzKVa9C#J!MPE%DJ#7=-TjYQ%^S
 DEBUG = True
 
 ROOT_URLCONF = 'backend.urls'
-AUTH_USER_MODEL = 'gestionusers.Person'
+AUTH_USER_MODEL = 'gestionusers.User'
 # Application definition
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'reperagepedopsy.com', 'http://reperagepedopsy.com']
-
+APPEND_SLASH = False
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

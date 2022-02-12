@@ -1,12 +1,8 @@
-from django.db.models import BooleanField, CASCADE, DateField, DateTimeField, ForeignKey, Model, OneToOneField, \
-    TextField
-from rest_framework.serializers import ModelSerializer
-
+from django.db.models import BooleanField, CASCADE, DateField, DateTimeField, ForeignKey, ManyToManyField, Model, \
+    OneToOneField, TextField
 from common.models import create_model_serializer
 import django.utils.timezone as timezone
-
-from gestionusers.models import ParentSerializer, PersonSerializer
-
+from gestionusers.models import PersonSerializer
 app_label = 'gestionpatient'
 doctor_model = 'gestionusers.Doctor'
 
@@ -21,7 +17,7 @@ class Patient(Model):
 
     class Meta:
         db_table = 'patients'
-        unique_together = (('parent_id', 'id'),)
+        unique_together = (('parent_id', 'name', 'familyName', 'birthdate', 'school'),)
 
 
 class Supervise(Model):
@@ -33,18 +29,18 @@ class Supervise(Model):
         db_table = 'supervises'
 
 
-class RenderVous(Model):
+class Consultation(Model):
     doctor: ForeignKey = ForeignKey(to=doctor_model, on_delete=CASCADE, null=False)
     parent: ForeignKey = ForeignKey(to='gestionusers.Parent', on_delete=CASCADE, null=False)
     date: DateTimeField = DateTimeField(null=False, default=timezone.now)
     accepted: BooleanField = BooleanField(null=False, default=False)
 
     class Meta:
-        db_table = 'rendez-vous'
+        db_table = 'consultations'
 
 
 class Diagnostic(Model):
-    consultation: OneToOneField = OneToOneField(to='RenderVous', on_delete=CASCADE)
+    consultation: OneToOneField = OneToOneField(to='Consultation', on_delete=CASCADE)
     patient: ForeignKey = ForeignKey(to='Patient', on_delete=CASCADE, null=False)
     diagnostic: TextField = TextField(null=False)
 
@@ -68,12 +64,10 @@ PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializ
 
 DiagnosticSerializer = create_model_serializer(model=Diagnostic, name='DiagnosticSerializer', app_label=app_label)
 
-
-class RendezVousSerializer(ModelSerializer):
-    parent = ParentSerializer(read_only=True)
-    doctor = PersonSerializer(read_only=True)
-    diagnostic = DiagnosticSerializer(read_only=True)
-
-    class Meta:
-        model = RenderVous
-        fields = ['parent_id', 'doctor_id', 'parent', 'doctor', 'date', 'accepted', 'diagnostic', 'id']
+ConsultationSerilaizer = create_model_serializer(model=Consultation, name='ConsultationSerilaizer', fields={
+    'parent': PersonSerializer(read_only=True),
+    'doctor': PersonSerializer(read_only=True),
+    'diagnostic': PersonSerializer(read_only=True)
+}, options={
+    'fields': ['parent_id', 'doctor_id', 'parent', 'doctor', 'date', 'accepted', 'diagnostic', 'id']
+}, app_label=app_label)

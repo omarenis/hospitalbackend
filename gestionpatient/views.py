@@ -14,7 +14,7 @@ from formparent.services import AnxityTroubleParentService, BehaviorTroubleParen
     SomatisationTroubleParentService
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
-from .models import DiagnosticSerializer, RendezVousSerializer, PatientSerializer, SuperviseSerializer
+from .models import DiagnosticSerializer, ConsultationSerilaizer, PatientSerializer, SuperviseSerializer
 from gestionusers.services import PersonService
 from .service import ConsultationService, DiagnosticService, PatientService, SuperviseService
 from AI import FILE, classifier, train
@@ -30,55 +30,13 @@ class Quantify(enum.Enum):
 
 def add_person(data: dict, type_user: str):
     if data is not None:
-        person = PersonService().filter_by({'cin': data.get('cin'), 'typeUser': type_user}).first()
+        person = PersonService().filter_by({'loginNumber': data.get('cin'), 'typeUser': type_user}).first()
         if person is None:
             person = PersonService().create(data)
             if isinstance(person, Exception):
                 raise person
         return person.id
     return None
-
-
-PATIENT_FIELDS = {
-    'name': {'type': 'text', 'required': True},
-    'familyName': {'type': 'text', 'required': True},
-    'school': {'type': 'text', 'required': True},
-    'birthdate': {'type': 'date', 'required': True},
-    'parent_id': {'type': 'foreign_key', 'required': False},
-    'parent': {'type': 'foreign_key', 'required': False},
-    'teacher': {'type': 'foreign_key', 'required': False},
-    'sick': {'type': 'bool', 'required': False},
-    'behaviortroubleparent': {'type': 'BehaviorTroubleParent', 'required': False},
-    'impulsivitytroubleparent': {'type': 'ImpulsivityTroubleParent', 'required': False},
-    'learningtroubleparent': {'type': 'LearningTroubleParent', 'required': False},
-    'anxitytroubleparent': {'type': 'AnxityTroubleParent', 'required': False},
-    'somatisationtroubleparent': {'type': 'SomatisationTroubleParent', 'required': False},
-    'hyperactivitytroubleparent': {'type': 'HyperActivityTroubleParent', 'required': False},
-    'extratroubleparent': {'type': 'ExtraTroubleParent', 'required': False},
-    'behaviorTroubleTeacher_set': {'type': 'list', 'required': False},
-    'hyperActivityTroubleTeacher_set': {'type': 'list', 'required': False},
-    'impulsivityTroubleTeacher_set': {'type': 'list', 'required': False},
-    'inattentionTroubleTeacher_set': {'type': 'list', 'required': False},
-    'extraTroubleTeacher_set': {'type': 'list', 'required': False}
-}
-SUPERVICE_FIELDS = {
-    'patient_id': {'type': 'int', 'required': True},
-    'doctor_id': {'type': 'int', 'required': True},
-    'accepted': {'type': 'bool', 'required': True}
-}
-
-CONSULTATION_FIELDS = {
-    'doctor_id': {'type': 'int', 'required': True},
-    'parent_id': {'type': 'int', 'required': True},
-    'date': {'type': 'int', 'required': True},
-    'accepted': {'type': 'bool', 'required': True}
-}
-
-DIAGNOSTIC_FIELDS = {
-    'patient_id': {'type': 'int', 'required': True},
-    'diagnostic': {'type': 'str', 'required': True},
-    'consultation_id': {'type': 'int', 'required': True}
-}
 
 
 class PatientViewSet(ViewSet):
@@ -90,17 +48,15 @@ class PatientViewSet(ViewSet):
         'somatisationtroubleparent': SomatisationTroubleParentService(),
         'hyperactivitytroubleparent': HyperActivityTroubleParentService(),
         'extratroubleparent': ExtraTroubleParentService(),
-        'behaviorTroubleTeacher_set': BehaviorTroubleTeacherService(),
-        'hyperActivityTroubleTeacher_set': HyperActivityTroubleTeacherService(),
-        'impulsivityTroubleTeacher_set': ImpulsivityTroubleTeacherService(),
-        'inattentionTroubleTeacher_set': InattentionTroubleTeacherService(),
-        'extraTroubleTeacher_set': ExtraTroubleTeacherService()
+        'behaviorTroubleTeacher': BehaviorTroubleTeacherService(),
+        'hyperActivityTroubleTeacher': HyperActivityTroubleTeacherService(),
+        'impulsivityTroubleTeacher': ImpulsivityTroubleTeacherService(),
+        'inattentionTroubleTeacher': InattentionTroubleTeacherService(),
+        'extraTroubleTeacher': ExtraTroubleTeacherService()
     }
 
-    def __init__(self, fields=None, serializer_class=PatientSerializer, service=PatientService(), **kwargs):
-        if fields is None:
-            fields = PATIENT_FIELDS
-        super().__init__(fields, serializer_class, service, **kwargs)
+    def __init__(self, serializer_class=PatientSerializer, service=PatientService(), **kwargs):
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
         self.data_to_predict = [0] * len(list(FILE.columns[1:-1]))
 
     def save_data_to_csv_file(self):
@@ -132,13 +88,22 @@ class PatientViewSet(ViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            filter_dictinary = {}
-            for i in request.GET:
-                filter_dictinary[i] = request.GET.get(i)
+            filter_dictionary = {}
+            if request.user.typeUser == 'teacher':
+                filter_dictionary['form__teacher_id'] = request.user.id
+            elif request.user.typeUser == 'school':
+                filter_dictionary['form__teacher__schoolteacherids__school_id'] = request.user.id
+            elif request.user.typeUser == 'parent':
+                filter_dictionary['parent_id'] = request.user.id
+            elif request.user.typeUser == 'doctor':
+                filter_dictionary['doctor_id'] = request.user.id
+            for i in request.query_params:
+                filter_dictionary[i] = request.query_params.get(i)
             output = []
-            pts = self.service.list() if list(request.GET.keys()) == [] else self.service.filter_by(filter_dictinary)
+            pts = self.service.list().distinct() if list(request.GET.keys()) == [] and filter_dictionary == {} \
+                else self.service.filter_by(filter_dictionary)
             if isinstance(pts, QuerySet):
-                for i in pts:
+                for i in pts.distinct():
                     output.append(self.serializer_class(i).data)
             else:
                 for i in pts:
@@ -153,10 +118,6 @@ class PatientViewSet(ViewSet):
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(self.serializer_class(patient_data).data, status=HTTP_200_OK)
-        # if isinstance(patient_data, tuple):
-        #     patient_object, patient_private_data = patient_data
-        #     return Response(data={**patient_private_data, **self.serializer_class(patient_object).data},
-        #                     status=HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         train()
@@ -173,10 +134,12 @@ class PatientViewSet(ViewSet):
         created = False
         patient_id = None
         parent_id = request.data.get('parent_id')
+        teacher_id = request.data.get('teacher_id')
         try:
             if parent_id is None:
                 parent_id = add_person(data=request.data.get('parent'), type_user='parent')
-            teacher_id = add_person(request.data.get('teacher'), type_user='teacher')
+            if teacher_id is None:
+                teacher_id = add_person(request.data.get('teacher'), type_user='teacher')
             required_data['parent_id'] = parent_id
             patient_object = self.service.filter_by(required_data).first()
             if patient_object is None:
@@ -190,7 +153,7 @@ class PatientViewSet(ViewSet):
                 if request.data.get(i) is not None and not self.fields[i].get('required') \
                         and self.fields[i].get('type') != 'bool' and self.fields[i].get('type') != 'foreign_key':
                     self.add_other_data_to_patient(
-                        data=request.data.get(i)[0] if teacher_id is not None else request.data.get(i),
+                        data=request.data.get(i),
                         service=self.services[i],
                         patient_id=patient_id,
                         teacher_id=teacher_id
@@ -209,37 +172,31 @@ class PatientViewSet(ViewSet):
         deleted = self.service.delete(pk)
         if isinstance(deleted, Exception):
             return Response(data={'error': str(deleted)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(data={}, status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_204_NO_CONTENT)
 
 
 class RenderVousViewSet(ViewSet):
     def get_permissions(self):
         return [IsAuthenticated()]
 
-    def __init__(self, fields=None, serializer_class=RendezVousSerializer, service=ConsultationService(), **kwargs):
-        if fields is None:
-            fields = CONSULTATION_FIELDS
-        super().__init__(fields, serializer_class, service, **kwargs)
+    def __init__(self, serializer_class=ConsultationSerilaizer, service=ConsultationService(), **kwargs):
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 class SuperviseViewSet(ViewSet):
     def get_permissions(self):
         return [AllowAny()]
 
-    def __init__(self, fields=None, serializer_class=SuperviseSerializer, service=SuperviseService(), **kwargs):
-        if fields is None:
-            fields = SUPERVICE_FIELDS
-        super().__init__(fields, serializer_class, service, **kwargs)
+    def __init__(self, serializer_class=SuperviseSerializer, service=SuperviseService(), **kwargs):
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 class DiagnosticViewSet(ViewSet):
     def get_permissions(self):
         return [IsAuthenticated()]
 
-    def __init__(self, fields=None, serializer_class=DiagnosticSerializer, service=DiagnosticService(), **kwargs):
-        if fields is None:
-            fields = DIAGNOSTIC_FIELDS
-        super().__init__(fields, serializer_class, service, **kwargs)
+    def __init__(self, serializer_class=DiagnosticSerializer, service=DiagnosticService(), **kwargs):
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 patients, patient = PatientViewSet.get_urls()

@@ -22,14 +22,12 @@ class MessageRepository(Repository):
 
 class MessageServise(Service):
     def __init__(self, repository=MessageRepository()):
-        super().__init__(repository)
+        super().__init__(repository, fields=MESSAGE_FIELDS)
 
 
 class MessageViewSet(ViewSet):
-    def __init__(self, fields=None, serializer_class=MessageSerializer, service=MessageServise(), **kwargs):
-        if fields is None:
-            fields = MESSAGE_FIELDS
-        super().__init__(fields, serializer_class, service, **kwargs)
+    def __init__(self, serializer_class=MessageSerializer, service=MessageServise(), **kwargs):
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
     def list(self, request, *args, **kwargs):
         email = request.GET.get('email')

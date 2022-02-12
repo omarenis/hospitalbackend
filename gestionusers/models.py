@@ -1,15 +1,16 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
-from django.db.models import BooleanField, CASCADE, EmailField, ForeignKey, Model, SET_NULL, TextField
-from rest_framework.serializers import ModelSerializer
+from django.db.models import CASCADE, CharField, EmailField, ForeignKey, Model, OneToOneField, SET_NULL, TextField
 import string
 import random
 from common.models import create_model, create_model_serializer
 
+app_label = 'gestionusers'
+
 
 # create the user manager and the person manager
 class UserManager(BaseUserManager):
-    def create(self, name, loginNumber, telephone, password, typeUser, localisation_id=None,
+    def create(self, name: str, loginNumber: str, telephone: str, password: str, typeUser: str, localisation_id=None,
                email=None):
         data = {
             'name': name,
@@ -17,7 +18,8 @@ class UserManager(BaseUserManager):
             'telephone': telephone,
             'typeUser': typeUser,
             'localisation_id': localisation_id,
-            'email': self.normalize_email(email) if email is not None else None
+            'email': self.normalize_email(email) if email is not None else None,
+            'username': name + ' ' + loginNumber
         }
         user = None
         if typeUser == 'school':
@@ -26,10 +28,32 @@ class UserManager(BaseUserManager):
             data['is_active'] = True
             data['is_superuser'] = True
             data['is_staff'] = True
-            user = Person(**data)
-
+            user = User(**data)
+            user.set_password(password)
         user.save()
+        return user
+
+
+class PersonManager(UserManager):
+    def create(self, name: str, loginNumber: str, telephone: str, typeUser: str, familyName: str = None,
+               address=None, is_active=False, localisation_id=None, email=None, password=None, speciality=None):
         try:
+            data = {
+                'name': name,
+                'familyName': familyName,
+                'loginNumber': loginNumber,
+                'telephone': telephone,
+                'typeUser': typeUser,
+                'address': address,
+                'is_active': is_active,
+                'localisation_id': localisation_id,
+                'username': name + ' ' + loginNumber
+            }
+            if typeUser == 'superdoctor' or typeUser == 'admin' or typeUser == 'school':
+                return super().create(name=name, loginNumber=loginNumber, telephone=telephone, password=password,
+                                      typeUser=typeUser)
+            elif familyName is None:
+                return Exception('familyNae is required')
             if typeUser == 'parent':
                 user = Parent(**data)
             elif typeUser == 'doctor':
@@ -39,35 +63,16 @@ class UserManager(BaseUserManager):
                 user = Doctor(**data)
             elif typeUser == 'teacher':
                 user = Teacher(**data)
-            elif typeUser == 'superdoctor':
-                data['is_active'] = True
-                is_active = True
-                user = Person(**data)
-            elif typeUser == 'admin':
-                data['is_active'] = True
-                data['is_superuser'] = True
-                data['is_staff'] = True
-                user = Person(**data)
             else:
-                raise AttributeError('user must be parent or doctor')
-            user.username = name + ' ' + familyName + cin
-            if is_active:
-                print(password)
-                user.set_password(password)
-            else:
-                randomstr = ''.join(random.choices(string.ascii_letters + string.digits, k=1258))
-                user.set_password(randomstr)
+                raise AttributeError('user must be parent, teacher or doctor')
+            randomstr = ''.join(random.choices(string.ascii_letters + string.digits, k=1258)) if is_active else password
+            user.set_password(randomstr)
             user.save()
             return user
         except Exception as exception:
             return exception
 
 
-class PersonManager(UserManager):
-    def create(self, name, familyName, cin, telephone, typeUser, address=None, is_active=False, localisation_id=None,
-               email=None, password=None, speciality=None):
-
-app_label = 'gestionusers'
 LOCALISATION_FIELDS = {
     'governorate': TextField(null=False),
     'delegation': TextField(null=False),
@@ -76,23 +81,22 @@ LOCALISATION_FIELDS = {
 USER_FIELD = {
     'name': TextField(null=False),
     'email': EmailField(null=True),
-    'loginNumber': TextField(null=False, unique=True),
+    'loginNumber': CharField(null=False, unique=True, max_length=9, db_column='login_number'),
     'telephone': TextField(null=False),
     'password': TextField(null=False),
-    'typeUser': TextField(null=False),
-    'localisation': ForeignKey(null=False, to='Localisation', on_delete=SET_NULL),
-    'objcts': UserManager()
+    'address': TextField(null=True, default=None),
+    'typeUser': TextField(null=False, db_column='type_user'),
+    'localisation': ForeignKey(null=True, to='Localisation', on_delete=SET_NULL),
+    'objects': PersonManager()
 }
 
 PERSON_FIElDS = {
     'familyName': TextField(null=False, db_column='family_name'),
-    'address': TextField(null=True, db_column='address'),
-    'is_active': BooleanField(null=False, default=False),
 }
 
 PARENT_FIELDS = {}
 DOCTOR_FIELDS = {'speciality': TextField(null=False)}
-TEACHER_FIELDS = {'school': ForeignKey(null=False, to='School', on_delete=CASCADE)}
+TEACHER_FIELDS = {}
 
 # create models
 Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALISATION_FIELDS,
@@ -102,35 +106,32 @@ Localisation = create_model(name='Localisation', type_model=Model, fields=LOCALI
                             },
                             app_label=app_label)
 
-
-User = create_model(name='User', type_model=AbstractUser, fields=USER_FIELD, options={'db_table': 'persons'},
+User = create_model(name='User', type_model=AbstractUser, fields=USER_FIELD, options={'db_table': 'users'},
                     app_label=app_label)
 
-School = create_model(name='School', type_model=User, fields={}, options={'db_tables': 'schools'}, app_label=app_label)
+School = create_model(name='School', type_model=User, fields={}, options={'db_table': 'schools'}, app_label=app_label)
 
 Person = create_model(name='Person', type_model=User, fields=PERSON_FIElDS, options={'db_table': 'persons'},
                       app_label=app_label)
 
-Parent = create_model(name='Parent', type_model=Person, fields={}, options={'db_table': 'parents'})
-Doctor = create_model(name='Doctor', type_model=Person, fields={})
-Teacher = create_model(name='Teacher', type_model=Person, fields=TEACHER_FIELDS, options={'db-table': 'teachers'})
+Parent = create_model(name='Parent', type_model=Person, fields=PARENT_FIELDS, options={'db_table': 'parents'},
+                      app_label=app_label)
+Doctor = create_model(name='Doctor', type_model=Person, fields=DOCTOR_FIELDS, app_label=app_label)
+Teacher = create_model(name='Teacher', type_model=Person, fields=TEACHER_FIELDS,
+                       options={'db_table': 'teachers'}, app_label=app_label)
+SchoolTeacherIds = create_model(name='SchoolTeacherIds', type_model=Model, fields={
+    'teacher': OneToOneField(to='Teacher', on_delete=CASCADE, null=False),
+    'school': ForeignKey(to='School', on_delete=CASCADE, null=False)
+}, app_label=app_label, options={'db_table': 'school_teacher_ids', 'unique_together': ('school_id', 'teacher_id')})
+LocalisationSerializer = create_model_serializer(name='LocalisationSerializer', model=Localisation, app_label=app_label,
+                                                 options={'fields': '__all__', 'excludes': ['person_set']})
 
-
-class LocalisationSerializer(ModelSerializer):
-    class Meta:
-        model = Localisation
-        fields = '__all__'
-        excludes = ['person_set']
-
-
-class PersonSerializer(ModelSerializer):
-    localisation = LocalisationSerializer(read_only=True, allow_null=True)
-
-    class Meta:
-        model = Person
-        fields = '__all__'
-
-
+UserSerializer = create_model_serializer(model=User, name='UserSerializer', app_label=app_label,
+                                         options={'fields': '__all__'},
+                                         fields={'localisation': LocalisationSerializer(read_only=True)})
+PersonSerializer = create_model_serializer(name='PersonSerializer', model=Person, app_label=app_label, fields={
+    'localisation': LocalisationSerializer(read_only=True, allow_null=True),
+}, options={'fields': '__all__'})
 ParentSerializer = create_model_serializer(model=Parent, name='ParentSerializer', app_label=app_label)
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)
 DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label)

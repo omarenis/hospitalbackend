@@ -20,6 +20,11 @@ class Repository(object):
             for i in data:
                 if hasattr(_object, i) and getattr(_object, i) != data[i]:
                     setattr(_object, i, data[i])
+            if data.get('password') is not None and isinstance(_object, AbstractUser) or \
+                    issubclass(_object.__class__, AbstractUser):
+                _object.set_password(data.get('password'))
+            else:
+                raise AttributeError("password only allowed for abstract users or their childs class")
             _object.save()
         return _object
 

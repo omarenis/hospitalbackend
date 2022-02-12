@@ -1,104 +1,38 @@
 from django.urls import path
-
-from common.models import text_field
 from common.views import FormViewSet, ViewSet
 from formteacher.models import BehaviorTroubleTeacherSerializer, ExtraTroubleTeacherSerializer, \
     HyperActivityTroubleTeacherSerializer, ImpulsivityTroubleTeacherSerializer, InattentionTroubleTeacherSerializer
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
 
-behavior_trouble_teacher_fields = {
-    'immediatelySatisfiedNeeds': text_field,
-    'angryUnexpectedBehavior': text_field,
-    'sensitiveCriticism': text_field,
-    'poutSulkEasily': text_field,
-    'moody': text_field,
-    'brawler': text_field,
-    'denyMistakesBlameOthers': text_field,
-    'lessAskTeacherHelp': text_field
-}
-
-impulsivity_trouble_teacher_fields = {
-    'restlessSquirmsChair': text_field,
-    'inappropriateNoises': text_field,
-    'arrogantImpolite': text_field,
-    'annoyStudents': text_field,
-    'goesLeftRight': text_field,
-    'easilyTurnOnImpulsive': text_field,
-    'excessiveAttentionFromTeacher': text_field
-}
-
-inattention_trouble_teacher = {
-    'distracted': text_field,
-    'dreamer': text_field,
-    'beLedByOthers': text_field,
-    'troubleGuidingOthers': text_field,
-    'troubleFinishingThings': text_field,
-    'immature': text_field,
-    'upsetEasilyMakeEffort': text_field,
-    'hasLearningDifficulties': text_field
-}
-
-hyperactivity_trouble_teacher = {
-    'restlessSquirmsChair': text_field,
-    'angryUnexpectedBehavior': text_field,
-    'distracted': text_field,
-    'annoyStudents': text_field,
-    'poutSulkEasily': text_field,
-    'moody': text_field,
-    'goesLeftRight': text_field,
-    'easilyTurnOnImpulsive': text_field,
-    'troubleFinishingThings': text_field,
-    'upsetEasilyMakeEffort': text_field
-}
-
-extra_trouble_teacher = {
-    'submissiveAttitudeTowardsAuthority': text_field,
-    'lessAcceptedByGroup': text_field,
-    'unacceptDefeat': text_field,
-    'troubleIntegratingWithOtherStudents': text_field,
-    'lessCooperateWithOthers': text_field
-}
-
 
 class BehaviorTroubleTeacherViewSet(FormViewSet):
-    def __init__(self, fields=None, serializer_class=BehaviorTroubleTeacherSerializer,
-                 service=BehaviorTroubleTeacherService(), **kwargs):
-        if fields is None:
-            fields = behavior_trouble_teacher_fields
-        super().__init__(fields, serializer_class, service, **kwargs)
+    def __init__(self, serializer_class=BehaviorTroubleTeacherSerializer, service=BehaviorTroubleTeacherService(),
+                 **kwargs):
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 class HyperActivityTroubleTeacherViewSet(FormViewSet):
-    def __init__(self, fields=None, serializer_class=HyperActivityTroubleTeacherSerializer,
+    def __init__(self, serializer_class=HyperActivityTroubleTeacherSerializer,
                  service=HyperActivityTroubleTeacherService(), **kwargs):
-        if fields is None:
-            fields = hyperactivity_trouble_teacher
-        super().__init__(fields, serializer_class, service, **kwargs)
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 class ImpulsivityTroubleTeacherViewSet(FormViewSet):
-    def __init__(self, fields=None, serializer_class=ImpulsivityTroubleTeacherSerializer,
+    def __init__(self, serializer_class=ImpulsivityTroubleTeacherSerializer,
                  service=ImpulsivityTroubleTeacherService(), **kwargs):
-        if fields is None:
-            fields = impulsivity_trouble_teacher_fields
-        super().__init__(fields, serializer_class, service, **kwargs)
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 class ExtraTroubleTeacherViewSet(FormViewSet):
-    def __init__(self, fields=None, serializer_class=ExtraTroubleTeacherSerializer,
-                 service=ExtraTroubleTeacherService(), **kwargs):
-        if fields is None:
-            fields = extra_trouble_teacher
-        super().__init__(fields, serializer_class, service, **kwargs)
+    def __init__(self, serializer_class=ExtraTroubleTeacherSerializer, service=ExtraTroubleTeacherService(), **kwargs):
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 class InattentionTroubleTeacherViewSet(ViewSet):
-    def __init__(self, fields=None, serializer_class=InattentionTroubleTeacherSerializer,
+    def __init__(self, serializer_class=InattentionTroubleTeacherSerializer,
                  service=InattentionTroubleTeacherService(), **kwargs):
-        if fields is None:
-            fields = inattention_trouble_teacher
-        super().__init__(fields, serializer_class, service, **kwargs)
+        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
 
 
 behavior_trouble_teacher_list, behavior_trouble_teacher_object = BehaviorTroubleTeacherViewSet.get_urls()
