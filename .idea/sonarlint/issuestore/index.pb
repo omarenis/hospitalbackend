@@ -37,7 +37,5 @@ E
 formteacher/models.py,a/1/a10522a44f68e9504280b456db5fd7f3de3d75ff
 F
 common/repositories.py,0/b/0bf8f17c16d32aa550fc5bcd9e35d381eef009b3
-C
-backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
 <
 backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
