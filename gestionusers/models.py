@@ -21,15 +21,14 @@ class UserManager(BaseUserManager):
             'email': self.normalize_email(email) if email is not None else None,
             'username': name + ' ' + loginNumber
         }
-        user = None
         if typeUser == 'school':
             user = School(**data)
-        elif typeUser == 'admin' or typeUser == 'superdoctor':
+        else:
             data['is_active'] = True
             data['is_superuser'] = True
             data['is_staff'] = True
             user = User(**data)
-            user.set_password(password)
+        user.set_password(password)
         user.save()
         return user
 
@@ -51,9 +50,9 @@ class PersonManager(UserManager):
             }
             if typeUser == 'superdoctor' or typeUser == 'admin' or typeUser == 'school':
                 return super().create(name=name, loginNumber=loginNumber, telephone=telephone, password=password,
-                                      typeUser=typeUser)
-            elif familyName is None:
-                return Exception('familyNae is required')
+                                      typeUser=typeUser, email=email, localisation_id=localisation_id)
+            if familyName is None:
+                return Exception('familyName is required')
             if typeUser == 'parent':
                 user = Parent(**data)
             elif typeUser == 'doctor':
@@ -65,7 +64,8 @@ class PersonManager(UserManager):
                 user = Teacher(**data)
             else:
                 raise AttributeError('user must be parent, teacher or doctor')
-            randomstr = ''.join(random.choices(string.ascii_letters + string.digits, k=1258)) if is_active else password
+            randomstr = ''.join(random.choices(string.ascii_letters + string.digits, k=1258)) if not is_active else \
+                password
             user.set_password(randomstr)
             user.save()
             return user
@@ -127,11 +127,15 @@ LocalisationSerializer = create_model_serializer(name='LocalisationSerializer', 
                                                  options={'fields': '__all__', 'excludes': ['person_set']})
 
 UserSerializer = create_model_serializer(model=User, name='UserSerializer', app_label=app_label,
-                                         options={'fields': '__all__'},
+                                         options={
+                                             'fields': ['name', 'email', 'telephone', 'email',
+                                                        'localisation', 'typeUser', 'loginNumber'],
+                                             'depth': 1},
                                          fields={'localisation': LocalisationSerializer(read_only=True)})
 PersonSerializer = create_model_serializer(name='PersonSerializer', model=Person, app_label=app_label, fields={
     'localisation': LocalisationSerializer(read_only=True, allow_null=True),
-}, options={'fields': '__all__'})
+}, options={'fields': ['name', 'loginNumber', 'localisation', 'telephone', 'typeUser', 'familyName', 'email'],
+            'depth': 1})
 ParentSerializer = create_model_serializer(model=Parent, name='ParentSerializer', app_label=app_label)
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)
 DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label)

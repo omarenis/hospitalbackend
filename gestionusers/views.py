@@ -1,15 +1,16 @@
+from django.contrib.auth.models import AnonymousUser
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet as RestViewSet
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND,\
-    HTTP_200_OK
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND, \
+    HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import RefreshToken
-from common.views import ViewSet, return_serialized_data_or_error_response
+from common.views import ViewSet, extract_serialized_objects_response, return_serialized_data_or_error_response
 from gestionusers.models import DoctorSerializer, LocalisationSerializer, PersonSerializer, UserSerializer
-from gestionusers.services import LocalisationService, LoginSignUpService, PersonService, UserService
+from gestionusers.services import DoctorService, LocalisationService, LoginSignUpService, PersonService, UserService
 
 
 class TokenViewSet(RestViewSet):
@@ -98,14 +99,23 @@ class UserViewSet(ViewSet):
 
     def create(self, request, *args, **kwargs):
         data = {}
-        print(request.data)
+        if request.user.typeUser == 'school':
+            self.service = PersonService()
+            self.serializer_class = PersonSerializer
+            if request.data.get('school_id') is None:
+                return Response(data={'error', 'school is required for teacher'}, status=HTTP_400_BAD_REQUEST)
+            data['school_id'] = request.user.id
+        elif request.user.typeUser == 'superdoctor':
+            self.service = DoctorService()
+            self.serializer_class = DoctorSerializer
+        self.fields = self.service.fields
+        for i in self.fields:
+            data[i] = request.data.get(i)
         if request.data.get('typeUser') != 'superdoctor':
             localisation = self.localisation_service.filter_by(request.data.get('localisation')).first()
             if localisation is None:
                 localisation = self.localisation_service.create(data=request.data.get('localisation'))
             data['localisation_id'] = localisation.id
-        for i in self.fields:
-            data[i] = request.data.get(i)
         user = self.service.filter_by({'loginNumber': request.data.get('loginNumber')}).first()
         data['is_active'] = True
         if user is not None:
@@ -120,22 +130,16 @@ class UserViewSet(ViewSet):
 
     def get_permissions(self):
         permission_classes = []
-        if self.action == 'list':
-            if self.request.method == 'GET' and self.request.query_params.get('typeUser') == 'doctor':
-                permission_classes.append(AllowAny())
-            if self.request.user.typeUser == 'school' and \
-                    self.request.query_params.get('typeUser') == 'teacher':
-                permission_classes.append(IsAuthenticated())
-            elif self.request.method == 'GET' and self.request.query_params.get('typeUser') == 'doctor':
-                permission_classes.append(AllowAny())
-        elif self.action == 'create' and self.request.user.typeUser == 'school' and \
-                self.request.data.get('typeUser') == 'teacher':
-            permission_classes.append(IsAuthenticated())
+        if isinstance(self.request.user, AnonymousUser) and self.request.method == 'GET' \
+                and self.request.query_params.get('typeUser') == 'doctor':
+            permission_classes.append(AllowAny())
         else:
-            permission_classes.append(IsAdminUser())
+            permission_classes.append(IsAuthenticated())
         return permission_classes
 
     def retrieve(self, request, pk=None, *args, **kwargs):
+        if request.user.typeUser != 'admin' and request.user.typeUser != 'superdoctor':
+            self.service = PersonService()
         user = self.service.retreive(pk)
         if user is None:
             return Response(data={"error": "لم يتم العثور على المستخدم"}, status=HTTP_404_NOT_FOUND)
@@ -149,11 +153,22 @@ class UserViewSet(ViewSet):
             return return_serialized_data_or_error_response(_object=user, serializer_class=UserSerializer,
                                                             response_code=HTTP_200_OK)
 
-
-class PersonViewSet(ViewSet):
-    def __init__(self, serializer_class=PersonSerializer, service=PersonService(), **kwargs):
-        super().__init__(serializer_class=serializer_class, service=service, **kwargs)
-        self.localisation_service = LocalisationService()
+    def list(self, request, *args, **kwargs):
+        filter_data = {}
+        if request.user.typeUser == 'school':
+            self.serializer_class = PersonSerializer
+            self.service = PersonService()
+            filter_data['typeUser'] = 'teacher'
+            filter_data['schoolteacherids__school_id'] = request.user.id
+        elif request.user.typeUser == 'superdoctor':
+            self.serializer_class = DoctorSerializer
+            self.service = DoctorService()
+        for i in request.query_params:
+            if self.service.fields.get(i) is None:
+                return Response(data={'error': f'{i} is not an attribute for the user model'})
+            filter_data[i] = request.query_params.get(i)
+        _objects = self.service.filter_by(data=filter_data) if filter_data != {} else self.service.list()
+        return extract_serialized_objects_response(_objects=_objects, serializer_class=self.serializer_class)
 
 
 users_list, user_retrieve_update_delete = UserViewSet.get_urls()

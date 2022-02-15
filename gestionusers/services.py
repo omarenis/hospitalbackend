@@ -1,6 +1,6 @@
 from common.repositories import Repository
 from common.services import Service
-from .models import Doctor, Localisation, Person, User
+from .models import Doctor, Localisation, Person, SchoolTeacherIds, Teacher, User
 from cryptography.fernet import Fernet
 from base64 import b64encode
 from hashlib import pbkdf2_hmac
@@ -59,7 +59,8 @@ class LoginSignUpService(object):
     def login(self, login_number: str, password: str):
         user = self.user_service.filter_by({'loginNumber': login_number}).first()
         if user is not None and user.is_active:
-            if user.check_password(password) and (user.address is not None or user.typeUser == 'admin' or
+            print(user.localisation_id)
+            if user.check_password(password) and (user.localisation_id is not None or user.typeUser == 'admin' or
                                                   user.typeUser == 'superdoctor'):
                 return user
             elif not user.is_active:
@@ -96,14 +97,26 @@ class PersonService(Service):
             user.set_password(password)
         return user
 
+    def create(self, data: dict):
+        if data.get('school_id') is not None:
+            school_id = data.pop('school_id')
+            user = super().create(data)
+            if isinstance(user, Exception):
+                return user
+            SchoolTeacherIds.objects.create(school_id=school_id, teacher_id=user.id)
+            return user
+        return super().create(data)
+
+    def filter_by(self, data: dict):
+        if data.get('typeUser') == 'teacher':
+            self.repository = Repository(model=Teacher)
+            print(self.repository.model)
+        return self.repository.filter_by(data=data)
+
 
 class LocalisationService(Service):
     def __init__(self, repository=Repository(model=Localisation)):
         super().__init__(repository, fields=LOCALISATION_FIELDS)
-
-    def create(self, data: dict):
-        print(data)
-        return super(LocalisationService, self).create(data)
 
 
 class DoctorService(Service):

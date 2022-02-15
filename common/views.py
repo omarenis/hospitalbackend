@@ -44,6 +44,17 @@ def extract_get_data(request):
     return output
 
 
+def extract_serialized_objects_response(_objects, serializer_class) -> Response:
+    output = []
+    if _objects:
+        try:
+            for i in _objects:
+                output.append(serializer_class(i).data)
+        except Exception as exception:
+            return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(data=output, status=HTTP_200_OK)
+
+
 class ViewSet(ModelViewSet):
     def __init__(self, serializer_class, service, **kwargs):
         super().__init__(**kwargs)
@@ -54,15 +65,7 @@ class ViewSet(ModelViewSet):
     def list(self, request, *args, **kwargs):
         _objects = self.service.filter_by(extract_get_data(request=request)) if request.GET is not None \
             else self.service.list()
-        if not _objects:
-            return Response(data=[], status=HTTP_200_OK)
-        output = []
-        for i in _objects:
-            try:
-                output.append(self.serializer_class(i).data)
-            except Exception as excepton:
-                return Response(data=dict(error=str(excepton)), status=HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(data=output, status=HTTP_200_OK)
+        return extract_serialized_objects_response(_objects, self.serializer_class)
 
     def create(self, request, *args, **kwargs):
         data = request.data

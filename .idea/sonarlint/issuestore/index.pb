@@ -9,8 +9,6 @@
 runtime.txt,2/e/2ed4029984f4a6c70a541992efb31f76528bd80d
 >
 chat/models.py,5/1/51ab5579afc7e5980b5abd4750946b091486cfe1
-<
-backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
 A
 backend_uwsgi.ini,c/7/c731e552b1eaede317dc73f6a1c98922aacfdddc
 @
@@ -34,6 +32,12 @@ I
 C
 formparent/views.py,1/5/15f0037355665f20764fe6a9d62a267e7846197b
 ?
-common/views.py,a/2/a2027c4c3af278934dafdb4a641e3f65e648e9d1
-?
 backend/urls.py,e/8/e86ee5a9c15adf9e0f1eef0379032fc6cd65bd41
+E
+formteacher/models.py,a/1/a10522a44f68e9504280b456db5fd7f3de3d75ff
+F
+common/repositories.py,0/b/0bf8f17c16d32aa550fc5bcd9e35d381eef009b3
+C
+backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
+<
+backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
