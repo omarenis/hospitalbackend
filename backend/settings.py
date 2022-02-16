@@ -52,7 +52,7 @@ DEBUG = False
 ROOT_URLCONF = 'backend.urls'
 AUTH_USER_MODEL = 'gestionusers.User'
 # Application definition
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "reperagepedopsy.com", "www.reperagepedopsy.com"]
 APPEND_SLASH = False
 INSTALLED_APPS = [
     'django.contrib.admin',
