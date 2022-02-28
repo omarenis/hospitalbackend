@@ -96,8 +96,8 @@ USER_FIELD = {
 }
 
 PERSON_FIElDS = {
-                    'familyName': TextField(null=False, db_column='family_name'),
-                },
+    'familyName': TextField(null=False, db_column='family_name')
+}
 
 PARENT_FIELDS = {}
 DOCTOR_FIELDS = {
