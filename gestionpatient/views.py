@@ -1,5 +1,6 @@
 import enum
 
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 
 from backend.settings import PROJECT_ROOT
@@ -177,7 +178,8 @@ class PatientViewSet(ViewSet):
 
 class RenderVousViewSet(ViewSet):
     def get_permissions(self):
-        return [IsAuthenticated()]
+        if self.request.user.typeUser == 'doctor':
+            return [IsAuthenticated()]
 
     def __init__(self, serializer_class=ConsultationSerilaizer, service=ConsultationService(), **kwargs):
         super().__init__(serializer_class=serializer_class, service=service, **kwargs)
@@ -185,7 +187,8 @@ class RenderVousViewSet(ViewSet):
 
 class SuperviseViewSet(ViewSet):
     def get_permissions(self):
-        return [AllowAny()]
+        if self.request.user.typeUser == 'doctor' or self.request.user.typeUser == 'superdoctor':
+            return [IsAuthenticated()]
 
     def __init__(self, serializer_class=SuperviseSerializer, service=SuperviseService(), **kwargs):
         super().__init__(serializer_class=serializer_class, service=service, **kwargs)

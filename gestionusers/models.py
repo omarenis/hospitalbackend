@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
-from django.db.models import CASCADE, CharField, EmailField, ForeignKey, Model, OneToOneField, SET_NULL, TextField
+from django.db.models import CASCADE, CharField, EmailField, ForeignKey, Model, OneToOneField, SET_NULL, TextField, \
+    BooleanField
 import string
 import random
 from common.models import create_model, create_model_serializer
@@ -35,7 +36,8 @@ class UserManager(BaseUserManager):
 
 class PersonManager(UserManager):
     def create(self, name: str, loginNumber: str, telephone: str, typeUser: str, familyName: str = None,
-               address=None, is_active=False, localisation_id=None, email=None, password=None, speciality=None):
+               address=None, is_active=False, localisation_id=None, email=None, password=None, speciality=None,
+               doctor_id=None):
         try:
             data = {
                 'name': name,
@@ -58,7 +60,10 @@ class PersonManager(UserManager):
             elif typeUser == 'doctor':
                 if speciality is None:
                     return Exception('speciality is required')
+                if doctor_id is None:
+                    return Exception('doctor must be associated to super doctor')
                 data['speciality'] = speciality
+                data['doctor_id'] = doctor_id
                 user = Doctor(**data)
             elif typeUser == 'teacher':
                 user = Teacher(**data)
@@ -91,11 +96,13 @@ USER_FIELD = {
 }
 
 PERSON_FIElDS = {
-    'familyName': TextField(null=False, db_column='family_name'),
-}
+                    'familyName': TextField(null=False, db_column='family_name'),
+                },
 
 PARENT_FIELDS = {}
-DOCTOR_FIELDS = {'speciality': TextField(null=False)}
+DOCTOR_FIELDS = {
+    'speciality': TextField(null=False)
+}
 TEACHER_FIELDS = {}
 
 # create models
