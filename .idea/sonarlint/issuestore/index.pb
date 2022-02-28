@@ -39,3 +39,9 @@ F
 common/repositories.py,0/b/0bf8f17c16d32aa550fc5bcd9e35d381eef009b3
 <
 backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
+G
+gestionpatient/views.py,e/6/e6ad7b6eb048b6d21e1def1d112d7b7d7cd18aec
+A
+BasePermission.py,7/4/74587f81cf26072755dffa29b1821dd124bdb267
+F
+gestionusers/models.py,6/b/6b0c04f2e31233dccffa4e375d1fbb75d36820ba
