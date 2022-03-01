@@ -57,6 +57,10 @@ class PersonManager(UserManager):
                 return Exception('familyName is required')
             if typeUser == 'parent':
                 user = Parent(**data)
+            elif typeUser == 'superdoctor':
+                data['is_super'] = True
+                data['speciality'] = None
+                user = Doctor(**data)
             elif typeUser == 'doctor':
                 if speciality is None:
                     return Exception('speciality is required')
@@ -69,9 +73,9 @@ class PersonManager(UserManager):
                 user = Teacher(**data)
             else:
                 raise AttributeError('user must be parent, teacher or doctor')
-            randomstr = ''.join(random.choices(string.ascii_letters + string.digits, k=1258)) if not is_active else \
+            random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=1258)) if not is_active else \
                 password
-            user.set_password(randomstr)
+            user.set_password(random_str)
             user.save()
             return user
         except Exception as exception:
@@ -101,7 +105,9 @@ PERSON_FIElDS = {
 
 PARENT_FIELDS = {}
 DOCTOR_FIELDS = {
-    'speciality': TextField(null=False)
+    'is_super': BooleanField(null=False, default=False),
+    'speciality': TextField(null=False),
+    'super_doctor': ForeignKey(to='Doctor', on_delete=SET_NULL, null=True)
 }
 TEACHER_FIELDS = {}
 
@@ -123,7 +129,8 @@ Person = create_model(name='Person', type_model=User, fields=PERSON_FIElDS, opti
 
 Parent = create_model(name='Parent', type_model=Person, fields=PARENT_FIELDS, options={'db_table': 'parents'},
                       app_label=app_label)
-Doctor = create_model(name='Doctor', type_model=Person, fields=DOCTOR_FIELDS, app_label=app_label)
+Doctor = create_model(name='Doctor', type_model=Person, fields=DOCTOR_FIELDS, app_label=app_label,
+                      options={'db_table': 'doctors'})
 Teacher = create_model(name='Teacher', type_model=Person, fields=TEACHER_FIELDS,
                        options={'db_table': 'teachers'}, app_label=app_label)
 SchoolTeacherIds = create_model(name='SchoolTeacherIds', type_model=Model, fields={

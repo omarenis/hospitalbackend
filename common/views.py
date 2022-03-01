@@ -90,7 +90,7 @@ class ViewSet(ModelViewSet):
                                                         response_code=HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        data = self.service.retreive(_id=pk)
+        data = self.service.retrieve(_id=pk)
         if data is None:
             return Response(data={'error': 'object not found'}, status=HTTP_404_NOT_FOUND)
         else:
@@ -100,7 +100,7 @@ class ViewSet(ModelViewSet):
     def update(self, request, pk=None, *args, **kwargs):
         if pk is None:
             return Response(data={'error': 'id must not be null'}, status=HTTP_400_BAD_REQUEST)
-        _object = self.service.retreive(_id=pk)
+        _object = self.service.retrieve(_id=pk)
         if _object is None:
             return Response(data={'error': 'object not found'}, status=HTTP_404_NOT_FOUND)
         _object = self.service.put(_id=pk, data=request.data)

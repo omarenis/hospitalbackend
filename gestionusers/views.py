@@ -24,7 +24,6 @@ class TokenViewSet(RestViewSet):
         return [AllowAny()]
 
     def login(self, request, *args, **kwargs):
-        print(request.data)
         login_number = request.data.get('loginNumber')
         if login_number is None:
             return Response(data={"exists": False}, status=400)
@@ -140,7 +139,7 @@ class UserViewSet(ViewSet):
     def retrieve(self, request, pk=None, *args, **kwargs):
         if request.user.typeUser != 'admin' and request.user.typeUser != 'superdoctor':
             self.service = PersonService()
-        user = self.service.retreive(pk)
+        user = self.service.retrieve(pk)
         if user is None:
             return Response(data={"error": "لم يتم العثور على المستخدم"}, status=HTTP_404_NOT_FOUND)
         else:
@@ -163,6 +162,8 @@ class UserViewSet(ViewSet):
         elif request.user.typeUser == 'superdoctor':
             self.serializer_class = DoctorSerializer
             self.service = DoctorService()
+            filter_data['is_super'] = False
+            filter_data['doctor_']
         for i in request.query_params:
             if self.service.fields.get(i) is None:
                 return Response(data={'error': f'{i} is not an attribute for the user model'})

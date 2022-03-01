@@ -10,7 +10,7 @@ class Service(object):
     def list(self):
         return self.repository.list()
 
-    def retreive(self, _id: int):
+    def retrieve(self, _id: int):
         return self.repository.retreive(_id=_id)
 
     def create(self, data: dict):

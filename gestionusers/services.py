@@ -31,12 +31,13 @@ USER_FIELDS = {
 PERSON_FIELDS = {
     **USER_FIELDS,
     'localisation_id': {'type': 'integer', 'required': False},
-    'familyName': {'type': 'text', 'required': True},
+    'familyName': {'type': 'text', 'required': True}
 }
 
 DOCTOR_FIELDS = {
     **PERSON_FIELDS,
-    'speciality': {'type': 'text', 'required': True}
+    'speciality': {'type': 'text', 'required': True},
+    'is_super': {'type': 'bool', 'required': False}
 }
 
 
@@ -44,10 +45,10 @@ class UserService(Service):
     def __init__(self, repository=Repository(model=User)):
         super().__init__(repository, fields=USER_FIELDS)
 
-    def retreive(self, _id: int):
-        user = super().retreive(_id)
+    def retrieve(self, _id: int):
+        user = super().retrieve(_id)
         if user.typeUser == 'doctor':
-            return DoctorService().retreive(_id=_id)
+            return DoctorService().retrieve(_id=_id)
         return user
 
 

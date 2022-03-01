@@ -115,7 +115,7 @@ class PatientViewSet(ViewSet):
             return Response(data={'error': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        patient_data = self.service.retreive(_id=pk)
+        patient_data = self.service.retrieve(_id=pk)
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(self.serializer_class(patient_data).data, status=HTTP_200_OK)
