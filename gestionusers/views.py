@@ -19,9 +19,12 @@ class TokenViewSet(RestViewSet):
     login_sign_up_service = LoginSignUpService()
 
     def get_permissions(self):
+        permissions = []
         if self.action == 'logout':
-            return [IsAuthenticated()]
-        return [AllowAny()]
+            permissions.append(IsAuthenticated())
+        else:
+            permissions.append(AllowAny())
+        return permissions
 
     def login(self, request, *args, **kwargs):
         login_number = request.data.get('loginNumber')
@@ -92,9 +95,13 @@ def logout(request, *args, **kwargs):
 
 
 class UserViewSet(ViewSet):
+    def get_permissions(self):
+        return [IsAuthenticated()]
+
     def __init__(self, serializer_class=UserSerializer, service=UserService(), **kwargs):
         super().__init__(serializer_class=serializer_class, service=service, **kwargs)
         self.localisation_service = LocalisationService()
+        self.permission_classes = self.get_permissions()
 
     def create(self, request, *args, **kwargs):
         data = {}
@@ -127,15 +134,6 @@ class UserViewSet(ViewSet):
             return Response(data={"error": str(user)}, status=500)
         return Response(data=self.serializer_class(user).data, status=HTTP_201_CREATED)
 
-    def get_permissions(self):
-        permission_classes = []
-        if isinstance(self.request.user, AnonymousUser) and self.request.method == 'GET' \
-                and self.request.query_params.get('typeUser') == 'doctor':
-            permission_classes.append(AllowAny())
-        else:
-            permission_classes.append(IsAuthenticated())
-        return permission_classes
-
     def retrieve(self, request, pk=None, *args, **kwargs):
         if request.user.typeUser != 'admin' and request.user.typeUser != 'superdoctor':
             self.service = PersonService()
@@ -163,12 +161,13 @@ class UserViewSet(ViewSet):
             self.serializer_class = DoctorSerializer
             self.service = DoctorService()
             filter_data['is_super'] = False
-            filter_data['doctor_']
         for i in request.query_params:
             if self.service.fields.get(i) is None:
                 return Response(data={'error': f'{i} is not an attribute for the user model'})
             filter_data[i] = request.query_params.get(i)
+        print(filter_data)
         _objects = self.service.filter_by(data=filter_data) if filter_data != {} else self.service.list()
+        print(_objects)
         return extract_serialized_objects_response(_objects=_objects, serializer_class=self.serializer_class)
 
 

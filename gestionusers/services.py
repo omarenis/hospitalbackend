@@ -83,6 +83,7 @@ class LoginSignUpService(object):
             localisation_id = localisation.id
         data['is_active'] = True
         data['localisation_id'] = localisation_id
+        data['typeUser'] = 'parent'
         return self.person_service.create(data)
 
 

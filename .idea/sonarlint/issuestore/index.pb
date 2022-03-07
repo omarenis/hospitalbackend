@@ -7,8 +7,6 @@
 contract.bin,b/a/ba9f4ac3e379d17f61246141cb926d8c36611bba
 ;
 runtime.txt,2/e/2ed4029984f4a6c70a541992efb31f76528bd80d
->
-chat/models.py,5/1/51ab5579afc7e5980b5abd4750946b091486cfe1
 A
 backend_uwsgi.ini,c/7/c731e552b1eaede317dc73f6a1c98922aacfdddc
 @
