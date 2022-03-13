@@ -9,11 +9,8 @@ APPLICATION_TYPE = "application/json"
 PATIENT_FIELDS = {
     'name': {'type': 'text', 'required': True},
     'familyName': {'type': 'text', 'required': True},
-    'school': {'type': 'text', 'required': True},
     'birthdate': {'type': 'date', 'required': True},
     'parent_id': {'type': 'foreign_key', 'required': False},
-    'parent': {'type': 'foreign_key', 'required': False},
-    'teacher': {'type': 'foreign_key', 'required': False},
     'sick': {'type': 'bool', 'required': False},
     'behaviortroubleparent': {'type': 'BehaviorTroubleParent', 'required': False},
     'impulsivitytroubleparent': {'type': 'ImpulsivityTroubleParent', 'required': False},

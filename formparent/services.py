@@ -5,9 +5,9 @@ from .repositories import AnxityTroubleParentRepository, BehaviorTroubleParentRe
     LearningTroubleParentRepository, SomatisationTroubleParentRepository
 
 BEHAVIOR_TROUBLE_PARENTS = {
-    'insolentWthGrownUps': text_field,
+    'insolentWithGrownUps': text_field,
     'feelsAttackedDefensive': text_field,
-    'descructive': text_field,
+    'destructive': text_field,
     'denyMistakesBlameOthers': text_field,
     'quarrelsomeGetInvolvedFight': text_field,
     'bullyIntimidateComrades': text_field,
@@ -15,7 +15,7 @@ BEHAVIOR_TROUBLE_PARENTS = {
     'unhappy': text_field
 }
 LEARNING_TROUBLE_PARENT_FIELDS = {
-    'hasLearningDifficuties': text_field,
+    'hasLearningDifficulties': text_field,
     'troubleFinishingThings': text_field,
     'easilyBeingDistracted': text_field,
     'enabilityFinishWhenDoEffort': text_field
@@ -27,7 +27,7 @@ SOMATISATION_TROUBLE_PARENT_FIELDS = {
     'vomitingNausea': text_field
 }
 IMPULSIVITY_TROUBLE_PARENT_FIELD = {
-    'excitableImpulsif': text_field,
+    'excitableImpulsive': text_field,
     'wantDominate': text_field,
     'squirms': text_field,
     'restlessNeedsDoSomething': text_field
@@ -40,16 +40,16 @@ ANXITY_TROUBLE_PARENT_FIELDS = {
 }
 
 HYPERACTIVITY_TROUBLE_PARENT_FIELDS = {
-    'excitableImpulsif': text_field,
+    'excitableImpulsive': text_field,
     'cryOftenEasily': text_field,
     'squirms': text_field,
     'restlessNeedsDoSomething': text_field,
-    'desctructive': text_field,
+    'destructive': text_field,
     'troubleFinishingThings': text_field,
     'easilyBeingDistracted': text_field,
     'moody': text_field,
     'enabilityFinishWhenDoEffort': text_field,
-    'disrurbOtherChildren': text_field
+    'disturbOtherChildren': text_field
 }
 
 EXTRA_TROUBLE_PARENT_FIELDS = {

@@ -15,7 +15,7 @@ def return_serialized_data_or_error_response(_object, serializer_class, response
 
 def extract_data_with_validation(request, fields: dict) -> dict or Exception:
     data = request.data
-    if request.content_type == 'application/json':
+    if request.content_type != 'application/json':
         data += request.files
     output = {}
     for i in data:

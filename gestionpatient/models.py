@@ -12,12 +12,11 @@ class Patient(Model):
     name: TextField = TextField(null=False)
     familyName: TextField = TextField(null=False)
     birthdate: DateField = DateField(null=False)
-    school: TextField = TextField(null=False)
     sick: BooleanField = BooleanField(default=False, null=False)
 
     class Meta:
         db_table = 'patients'
-        unique_together = (('parent_id', 'name', 'familyName', 'birthdate', 'school'),)
+        unique_together = (('parent_id', 'name', 'familyName', 'birthdate'),)
 
 
 class Supervise(Model):
@@ -54,7 +53,7 @@ PatientGetSerializer = create_model_serializer(model=Patient, name='PatientGetSe
                                                    'fields': 'all'
                                                })
 PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializer', app_label=app_label, options={
-    'fields': ['id', 'name', 'familyName', 'birthdate', 'school', 'parent', 'behaviortroubleparent',
+    'fields': ['id', 'name', 'familyName', 'birthdate', 'parent', 'behaviortroubleparent',
                'impulsivitytroubleparent', 'learningtroubleparent', 'anxitytroubleparent',
                'somatisationtroubleparent', 'hyperactivitytroubleparent', 'extratroubleparent', 'supervise', 'sick'],
     'depth': 1

@@ -143,12 +143,13 @@ LocalisationSerializer = create_model_serializer(name='LocalisationSerializer', 
 UserSerializer = create_model_serializer(model=User, name='UserSerializer', app_label=app_label,
                                          options={
                                              'fields': ['name', 'email', 'telephone', 'email',
-                                                        'localisation', 'typeUser', 'loginNumber'],
+                                                        'localisation', 'typeUser', 'loginNumber', 'password'],
                                              'depth': 1},
                                          fields={'localisation': LocalisationSerializer(read_only=True)})
 PersonSerializer = create_model_serializer(name='PersonSerializer', model=Person, app_label=app_label, fields={
     'localisation': LocalisationSerializer(read_only=True, allow_null=True),
-}, options={'fields': ['name', 'loginNumber', 'localisation', 'telephone', 'typeUser', 'familyName', 'email'],
+}, options={'fields': ['name', 'loginNumber', 'localisation', 'telephone', 'typeUser', 'familyName', 'email',
+                       'password'],
             'depth': 1})
 ParentSerializer = create_model_serializer(model=Parent, name='ParentSerializer', app_label=app_label)
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)

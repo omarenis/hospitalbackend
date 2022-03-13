@@ -60,6 +60,9 @@ class PatientViewSet(ViewSet):
         super().__init__(serializer_class=serializer_class, service=service, **kwargs)
         self.data_to_predict = [0] * len(list(FILE.columns[1:-1]))
 
+    def get_permissions(self):
+        return [IsAuthenticated()]
+
     def save_data_to_csv_file(self):
         with open(f'{PROJECT_ROOT}/dataset1.csv') as f:
             string = f"\n{len(f.readlines()) - 1},"
@@ -128,20 +131,15 @@ class PatientViewSet(ViewSet):
         required_data = {
             'name': data.get('name'),
             'familyName': data.get('familyName'),
-            'school': data.get('school'),
             'birthdate': data.get('birthdate'),
-            'parent_id': data.get('parent_id')
         }
+        if request.user.typeUser == 'parent':
+            required_data['parent_id'] = request.user.id
+        elif request.user.typeUser == 'teacher':
+            required_data['teacher_id'] = request.user.id
         created = False
         patient_id = None
-        parent_id = request.data.get('parent_id')
-        teacher_id = request.data.get('teacher_id')
         try:
-            if parent_id is None:
-                parent_id = add_person(data=request.data.get('parent'), type_user='parent')
-            if teacher_id is None:
-                teacher_id = add_person(request.data.get('teacher'), type_user='teacher')
-            required_data['parent_id'] = parent_id
             patient_object = self.service.filter_by(required_data).first()
             if patient_object is None:
                 patient_object = self.service.create(required_data)
@@ -157,7 +155,7 @@ class PatientViewSet(ViewSet):
                         data=request.data.get(i),
                         service=self.services[i],
                         patient_id=patient_id,
-                        teacher_id=teacher_id
+                        teacher_id=required_data.get('teacher_id')
                     )
             self.data_to_predict.append(0)
             patient_object.sick = classifier.predict([self.data_to_predict])[0] == 1
