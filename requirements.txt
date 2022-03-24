@@ -34,6 +34,7 @@ eth-typing==2.2.2
 eth-utils==1.10.0
 ethereum-keys==0.1.0a9
 ethereum-utils==0.6.2
+gunicorn==20.1.0
 hexbytes==0.2.2
 idna==3.2
 importlib-metadata==4.8.1
