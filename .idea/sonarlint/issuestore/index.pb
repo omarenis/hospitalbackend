@@ -7,8 +7,6 @@
 contract.bin,b/a/ba9f4ac3e379d17f61246141cb926d8c36611bba
 ;
 runtime.txt,2/e/2ed4029984f4a6c70a541992efb31f76528bd80d
-A
-backend_uwsgi.ini,c/7/c731e552b1eaede317dc73f6a1c98922aacfdddc
 @
 test_requests.py,5/4/54a1d29421fba9ec43664b7cb774d786841655ef
 D
@@ -29,9 +27,9 @@ E
 formteacher/models.py,a/1/a10522a44f68e9504280b456db5fd7f3de3d75ff
 F
 common/repositories.py,0/b/0bf8f17c16d32aa550fc5bcd9e35d381eef009b3
-<
-backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
 E
 gestionusers/views.py,7/8/78a916d2af46a59c10942e0deb847e488e8422b3
 <
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
+S
+#.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0

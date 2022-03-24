@@ -47,7 +47,7 @@ SECRET_KEY = 'kAb55BSKW=ev?vu-9GzP3Lke*&*7rt8#5XzRvtvSzKVa9C#J!MPE%DJ#7=-TjYQ%^S
              '#RufMHdHw2rjz6Em4r7DLzvS&P&?Kvn&qKNy3V#aUFm9PN^DGvt_yN-EFrDsnqt-$hMTGm32es=Y+zB7QGmA=sQ2KRSueraSSvr' \
              '+aUhjj*esEpWPq6 '
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ROOT_URLCONF = 'backend.urls'
 AUTH_USER_MODEL = 'gestionusers.User'
