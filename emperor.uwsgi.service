@@ -1,0 +1,9 @@
+[Unit]
+Description=uwsgi emperor for micro domains website
+After=network.target
+[Service]
+User=udoms
+Restart=always
+ExecStart=/var/www/backend/env/bin/uwsgi --emperor /var/www/backend/vassals --uid www-data --gid www-data
+[Install]
+WantedBy=multi-user.target
