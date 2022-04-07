@@ -18,12 +18,12 @@ from django.http import HttpResponse
 from django.urls import include, path
 
 
-def home():
+def home(request):
     return HttpResponse(b"hello world")
 
 
 urlpatterns = [
-    path('api', home),
+    path('api/', home),
     path('admin/', admin.site.urls),
     path('api/persons', include('gestionusers.views')),
     path('api/patients', include('gestionpatient.views')),
