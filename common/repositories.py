@@ -9,7 +9,7 @@ class Repository(object):
     def list(self):
         return self.model.objects.all()
 
-    def retreive(self, _id: int):
+    def retrieve(self, _id: int):
         return self.model.objects.get(id=_id)
 
     def put(self, _id: int, data: dict):

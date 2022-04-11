@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
 class PersonManager(UserManager):
     def create(self, name: str, loginNumber: str, telephone: str, typeUser: str, familyName: str = None,
                address=None, is_active=False, localisation_id=None, email=None, password=None, speciality=None,
-               doctor_id=None):
+               super_doctor_id=None, is_super=False):
         try:
             data = {
                 'name': name,
@@ -64,10 +64,11 @@ class PersonManager(UserManager):
             elif typeUser == 'doctor':
                 if speciality is None:
                     return Exception('speciality is required')
-                if doctor_id is None:
+                if super_doctor_id is None:
                     return Exception('doctor must be associated to super doctor')
                 data['speciality'] = speciality
-                data['doctor_id'] = doctor_id
+                data['is_super'] = is_super
+                data['super_doctor_id'] = super_doctor_id
                 user = Doctor(**data)
             elif typeUser == 'teacher':
                 user = Teacher(**data)
@@ -142,15 +143,18 @@ LocalisationSerializer = create_model_serializer(name='LocalisationSerializer', 
 
 UserSerializer = create_model_serializer(model=User, name='UserSerializer', app_label=app_label,
                                          options={
-                                             'fields': ['name', 'email', 'telephone', 'email',
+                                             'fields': ['id', 'name', 'email', 'telephone', 'email',
                                                         'localisation', 'typeUser', 'loginNumber', 'password'],
                                              'depth': 1},
                                          fields={'localisation': LocalisationSerializer(read_only=True)})
 PersonSerializer = create_model_serializer(name='PersonSerializer', model=Person, app_label=app_label, fields={
     'localisation': LocalisationSerializer(read_only=True, allow_null=True),
-}, options={'fields': ['name', 'loginNumber', 'localisation', 'telephone', 'typeUser', 'familyName', 'email',
+}, options={'fields': ['id', 'name', 'loginNumber', 'localisation', 'telephone', 'typeUser', 'familyName', 'email',
                        'password'],
             'depth': 1})
 ParentSerializer = create_model_serializer(model=Parent, name='ParentSerializer', app_label=app_label)
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)
-DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label)
+DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label,
+                                           options={'fields': ['id', 'name', 'loginNumber', 'localisation', 'telephone',
+                                                               'typeUser', 'email', 'password'],
+                                                    'depth': 1})

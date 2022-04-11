@@ -27,8 +27,6 @@ E
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
 S
 #.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
-G
-gestionpatient/views.py,e/6/e6ad7b6eb048b6d21e1def1d112d7b7d7cd18aec
 H
 gestionpatient/models.py,b/c/bc17c64f42bc077b17e2207d4b4e6bf630c6a737
 I
@@ -37,31 +35,9 @@ C
 formparent/tests.py,0/3/03f2fdb2d423209778623c06aa9e02d946960e9c
 F
 formparent/services.py,1/d/1d5426960dce036777f2c15d589bbff26ece586d
-E
-gestionusers/views.py,7/8/78a916d2af46a59c10942e0deb847e488e8422b3
-H
-gestionusers/services.py,5/e/5e0e5fe677b0d8632d6d510aff3292fc2fdbb0e1
-<
-uwsgi_params,6/7/6737eeae6e05679b2da65d986756fdcc248824e1
-E
-emperor.uwsgi.service,2/3/23187fa7ee3458e67e5105fc7afa0cec85e6ecad
-A
-backend_uwsgi.ini,c/7/c731e552b1eaede317dc73f6a1c98922aacfdddc
 <
 backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
-@
-common/models.py,2/2/2253d0b87a379991f4a9dfb42b6c1d4d930c2644
-F
-common/repositories.py,0/b/0bf8f17c16d32aa550fc5bcd9e35d381eef009b3
-B
-common/services.py,1/3/13442ff2c318f6c4daec6494e860f32f8de076cf
+G
+gestionpatient/views.py,e/6/e6ad7b6eb048b6d21e1def1d112d7b7d7cd18aec
 ?
 common/views.py,a/2/a2027c4c3af278934dafdb4a641e3f65e648e9d1
-F
-gestionusers/models.py,6/b/6b0c04f2e31233dccffa4e375d1fbb75d36820ba
-A
-BasePermission.py,7/4/74587f81cf26072755dffa29b1821dd124bdb267
-C
-backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
-?
-backend/urls.py,e/8/e86ee5a9c15adf9e0f1eef0379032fc6cd65bd41

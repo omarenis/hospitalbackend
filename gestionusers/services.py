@@ -25,7 +25,7 @@ USER_FIELDS = {
     'email': {'type': 'email', 'required': False},
     'telephone': {'type': 'email', 'required': True},
     'password': {'type': 'password', 'required': True},
-    'typeUser': {'type': 'integer', 'required': True}
+    'typeUser': {'type': 'text', 'required': True}
 }
 
 PERSON_FIELDS = {
@@ -36,7 +36,7 @@ PERSON_FIELDS = {
 
 DOCTOR_FIELDS = {
     **PERSON_FIELDS,
-    'speciality': {'type': 'text', 'required': True},
+    'speciality': {'type': 'text', 'required': False},
     'is_super': {'type': 'bool', 'required': False}
 }
 
@@ -92,7 +92,7 @@ class PersonService(Service):
         super().__init__(repository, fields=PERSON_FIELDS)
 
     def reset_password(self, _id: int, password):
-        user = self.repository.retreive(_id)
+        user = self.repository.retrieve(_id)
         if user is None:
             return Exception("user not found")
         else:

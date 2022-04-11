@@ -111,9 +111,16 @@ class UserViewSet(ViewSet):
             if request.data.get('school_id') is None:
                 return Response(data={'error', 'school is required for teacher'}, status=HTTP_400_BAD_REQUEST)
             data['school_id'] = request.user.id
+        if request.user.typeUser == 'admin' and request.data.get('typeUser') == 'superdoctor':
+            self.service = DoctorService()
+            self.serializer_class = DoctorSerializer
+            data['is_super'] = True
+            data['speciality'] = ''
         elif request.user.typeUser == 'superdoctor':
             self.service = DoctorService()
             self.serializer_class = DoctorSerializer
+            data['super_doctor_id'] = request.user.id
+            data['is_super'] = False
         self.fields = self.service.fields
         for i in self.fields:
             data[i] = request.data.get(i)
@@ -165,9 +172,7 @@ class UserViewSet(ViewSet):
             if self.service.fields.get(i) is None:
                 return Response(data={'error': f'{i} is not an attribute for the user model'})
             filter_data[i] = request.query_params.get(i)
-        print(filter_data)
         _objects = self.service.filter_by(data=filter_data) if filter_data != {} else self.service.list()
-        print(_objects)
         return extract_serialized_objects_response(_objects=_objects, serializer_class=self.serializer_class)
 
 

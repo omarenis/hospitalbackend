@@ -11,7 +11,7 @@ class Service(object):
         return self.repository.list()
 
     def retrieve(self, _id: int):
-        return self.repository.retreive(_id=_id)
+        return self.repository.retrieve(_id=_id)
 
     def create(self, data: dict):
         print(data)
@@ -27,7 +27,7 @@ class Service(object):
         return self.repository.delete(_id)
 
     def filter_by(self, data: dict):
-        filter_params={}
+        filter_params = {}
         for i in data:
             if self.fields.get(i) is not None and self.fields.get(i).get('type') == 'text':
                 filter_params[f'{i}__contains'] = data[i]

@@ -119,6 +119,7 @@ class PatientViewSet(ViewSet):
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         patient_data = self.service.retrieve(_id=pk)
+        print(patient_data)
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(self.serializer_class(patient_data).data, status=HTTP_200_OK)
@@ -207,11 +208,11 @@ diagnostics, diagnostic = DiagnosticViewSet.get_urls()
 
 urlpatterns = [
     path('', patients),
-    path('<int:pk>', patient),
-    path('supervises', supervises),
-    path('supervises/<int:pk>', supervise),
-    path('consultations', consultations),
-    path('consultations/<int:pk>', consultation),
-    path('diagnostics', diagnostics),
-    path('diagnostics/<int:pk>', diagnostic)
+    path('/<int:pk>', patient),
+    path('/supervises', supervises),
+    path('/supervises/<int:pk>', supervise),
+    path('/consultations', consultations),
+    path('/consultations/<int:pk>', consultation),
+    path('/diagnostics', diagnostics),
+    path('/diagnostics/<int:pk>', diagnostic)
 ]
