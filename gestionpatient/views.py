@@ -16,7 +16,7 @@ from formparent.services import AnxityTroubleParentService, BehaviorTroubleParen
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
 from .models import DiagnosticSerializer, ConsultationSerilaizer, PatientSerializer, SuperviseSerializer
-from gestionusers.services import PersonService
+from gestionusers.services import PersonService, UserService
 from .service import ConsultationService, DiagnosticService, PatientService, SuperviseService
 from AI import FILE, classifier, train
 columns = list(FILE.columns[1:-1])
@@ -40,15 +40,39 @@ def add_person(data: dict, type_user: str):
     return None
 
 
+def add_other_data_to_patient(data: dict, service, patient_id, teacher_id=None):
+    # for i in range(len(columns)):
+    #     if data.get(columns[i]) is not None and self.data_to_predict[i] != Quantify[data.get(columns[i])].value:
+    #         self.data_to_predict[i] = Quantify[data.get(columns[i])].value
+    #
+    _object = service.filter_by({'teacher_id': teacher_id, 'patient_id': patient_id}).first() \
+        if teacher_id is not None else service.filter_by({'patient_id': patient_id}).first()
+    print(_object)
+    if _object:
+        _object = service.put(data=data, _id=_object.id)
+    else:
+        data['patient_id'] = patient_id
+        if teacher_id is not None:
+            data['teacher_id'] = teacher_id
+    print(data)
+    _object = service.create(data=data)
+    if isinstance(_object, Exception):
+        print(_object)
+        raise _object
+    return _object
+
+
 class PatientViewSet(ViewSet):
-    services = {
+    serviceParent = {
         'behaviortroubleparent': BehaviorTroubleParentService(),
         'impulsivitytroubleparent': ImpulsivityTroubleParentService(),
         'learningtroubleparent': LearningTroubleParentService(),
         'anxitytroubleparent': AnxityTroubleParentService(),
         'somatisationtroubleparent': SomatisationTroubleParentService(),
         'hyperactivitytroubleparent': HyperActivityTroubleParentService(),
-        'extratroubleparent': ExtraTroubleParentService(),
+        'extratroubleparent': ExtraTroubleParentService()
+    }
+    servicesTeacher = {
         'behaviorTroubleTeacher': BehaviorTroubleTeacherService(),
         'hyperActivityTroubleTeacher': HyperActivityTroubleTeacherService(),
         'impulsivityTroubleTeacher': ImpulsivityTroubleTeacherService(),
@@ -73,23 +97,6 @@ class PatientViewSet(ViewSet):
             f.write(string)
         train()
 
-    def add_other_data_to_patient(self, data: dict, service, patient_id, teacher_id=None):
-        for i in range(len(columns)):
-            if data.get(columns[i]) is not None and self.data_to_predict[i] != Quantify[data.get(columns[i])].value:
-                self.data_to_predict[i] = Quantify[data.get(columns[i])].value
-        _object = service.filter_by({'teacher_id': teacher_id, 'patient_id': patient_id}).first() \
-            if teacher_id is not None else service.filter_by({'patient_id': patient_id}).first()
-        if _object:
-            _object = service.put(data=data, _id=_object.id)
-        else:
-            data['patient_id'] = patient_id
-            if teacher_id is not None:
-                data['teacher_id'] = teacher_id
-            _object = service.create(data=data)
-        if isinstance(_object, Exception):
-            raise _object
-        return _object
-
     def list(self, request, *args, **kwargs):
         try:
             filter_dictionary = {}
@@ -100,7 +107,8 @@ class PatientViewSet(ViewSet):
             elif request.user.typeUser == 'parent':
                 filter_dictionary['parent_id'] = request.user.id
             elif request.user.typeUser == 'doctor':
-                filter_dictionary['doctor_id'] = request.user.id
+                filter_dictionary['supervise__doctor_id'] = request.user.id
+                filter_dictionary['supervise__accepted'] = True
             for i in request.query_params:
                 filter_dictionary[i] = request.query_params.get(i)
             output = []
@@ -125,19 +133,30 @@ class PatientViewSet(ViewSet):
         return Response(self.serializer_class(patient_data).data, status=HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
+        required_data = {
+            'name': request.data.get('name'),
+            'familyName': request.data.get('familyName'),
+            'birthdate': request.data.get('birthdate'),
+        }
+        if request.user.typeUser == 'parent':
+            required_data['parent_id'] = request.user.id
+        else:
+            parent_cin = request.data.pop('parentCin')
+            parent = UserService().filter_by({'loginNumber': parent_cin}).first()
+            if parent is None:
+                parent = UserService().create({
+                    'loginNumber': parent_cin,
+                    'name': '',
+                    'familyName': '',
+                    'typeUser': 'parent',
+                    'telephone': '',
+                    'password': ''
+                })
+            required_data['parent_id'] = parent.id
         train()
         data = extract_data_with_validation(request=request, fields=self.fields)
         if isinstance(data, Exception):
             return Response(data={'error': str(data)}, status=HTTP_400_BAD_REQUEST)
-        required_data = {
-            'name': data.get('name'),
-            'familyName': data.get('familyName'),
-            'birthdate': data.get('birthdate'),
-        }
-        if request.user.typeUser == 'parent':
-            required_data['parent_id'] = request.user.id
-        elif request.user.typeUser == 'teacher':
-            required_data['teacher_id'] = request.user.id
         created = False
         patient_id = None
         try:
@@ -149,15 +168,32 @@ class PatientViewSet(ViewSet):
             else:
                 created = True
             patient_id = patient_object.id
-            for i in self.fields:
-                if request.data.get(i) is not None and not self.fields[i].get('required') \
-                        and self.fields[i].get('type') != 'bool' and self.fields[i].get('type') != 'foreign_key':
-                    self.add_other_data_to_patient(
+            for i in self.serviceParent:
+                add_other_data_to_patient(
+                    data=request.data.get(i),
+                    service=self.serviceParent[i],
+                    patient_id=patient_id,
+                    teacher_id=None
+                )
+            if request.user.typeUser == 'teacher':
+                for i in self.servicesTeacher:
+                    add_other_data_to_patient(
                         data=request.data.get(i),
-                        service=self.services[i],
+                        service=self.servicesTeacher[i],
                         patient_id=patient_id,
-                        teacher_id=required_data.get('teacher_id')
+                        teacher_id=request.user.id
                     )
+            # for i in self.fields:
+            #     if request.data.get(i) is not None and not self.fields[i].get('required') \
+            #             and self.fields[i].get('type') != 'bool' and self.fields[i].get('type') != 'foreign_key':
+            #         print(request.data.get(i))
+            #         if request.user.typeUser == 'teacher':
+            #             add_other_data_to_patient(
+            #                 data=request.data.get(i),
+            #                 service=self.servicesTeacher[i],
+            #                 patient_id=patient_id,
+            #                 teacher_id=request.user.id
+            #             )
             self.data_to_predict.append(0)
             patient_object.sick = classifier.predict([self.data_to_predict])[0] == 1
             patient_object.save()

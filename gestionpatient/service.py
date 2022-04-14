@@ -19,11 +19,11 @@ PATIENT_FIELDS = {
     'somatisationtroubleparent': {'type': 'SomatisationTroubleParent', 'required': False},
     'hyperactivitytroubleparent': {'type': 'HyperActivityTroubleParent', 'required': False},
     'extratroubleparent': {'type': 'ExtraTroubleParent', 'required': False},
-    'behaviorTroubleTeacher_set': {'type': 'list', 'required': False},
-    'hyperActivityTroubleTeacher_set': {'type': 'list', 'required': False},
-    'impulsivityTroubleTeacher_set': {'type': 'list', 'required': False},
-    'inattentionTroubleTeacher_set': {'type': 'list', 'required': False},
-    'extraTroubleTeacher_set': {'type': 'list', 'required': False}
+    'behaviorTroubleTeacher': {'type': 'list', 'required': False},
+    'hyperActivityTroubleTeacher': {'type': 'list', 'required': False},
+    'impulsivityTroubleTeacher': {'type': 'list', 'required': False},
+    'inattentionTroubleTeacher': {'type': 'list', 'required': False},
+    'extraTroubleTeacher': {'type': 'list', 'required': False}
 }
 
 SUPERVICE_FIELDS = {

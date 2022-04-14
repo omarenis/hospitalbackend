@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
 from django.db.models import CASCADE, CharField, EmailField, ForeignKey, Model, OneToOneField, SET_NULL, TextField, \
-    BooleanField
+    BooleanField, BigIntegerField
 import string
 import random
 from common.models import create_model, create_model_serializer
@@ -108,7 +108,7 @@ PARENT_FIELDS = {}
 DOCTOR_FIELDS = {
     'is_super': BooleanField(null=False, default=False),
     'speciality': TextField(null=False),
-    'super_doctor': ForeignKey(to='Doctor', on_delete=SET_NULL, null=True)
+    'super_doctor_id': BigIntegerField(null=False)
 }
 TEACHER_FIELDS = {}
 

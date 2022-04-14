@@ -1,9 +1,12 @@
+from django.contrib.auth.models import AnonymousUser
+
 from common.repositories import Repository
 from common.services import Service
 from .models import Doctor, Localisation, Person, SchoolTeacherIds, Teacher, User
 from cryptography.fernet import Fernet
 from base64 import b64encode
 from hashlib import pbkdf2_hmac
+
 
 URL = "http://localhost:5000/"
 
@@ -112,7 +115,6 @@ class PersonService(Service):
     def filter_by(self, data: dict):
         if data.get('typeUser') == 'teacher':
             self.repository = Repository(model=Teacher)
-            print(self.repository.model)
         return self.repository.filter_by(data=data)
 
 

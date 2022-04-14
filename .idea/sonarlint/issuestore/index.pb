@@ -21,23 +21,17 @@ D
 formteacher/views.py,1/5/1586efc40f4986c11bd0006dd9b7cd0e30079e66
 C
 formparent/views.py,1/5/15f0037355665f20764fe6a9d62a267e7846197b
-E
-formteacher/models.py,a/1/a10522a44f68e9504280b456db5fd7f3de3d75ff
 <
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
 S
 #.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
-H
-gestionpatient/models.py,b/c/bc17c64f42bc077b17e2207d4b4e6bf630c6a737
-I
-gestionpatient/service.py,3/d/3dd3198c381b587b9c7dcdb4e360a28151db3608
 C
 formparent/tests.py,0/3/03f2fdb2d423209778623c06aa9e02d946960e9c
 F
 formparent/services.py,1/d/1d5426960dce036777f2c15d589bbff26ece586d
 <
 backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
-G
-gestionpatient/views.py,e/6/e6ad7b6eb048b6d21e1def1d112d7b7d7cd18aec
 ?
 common/views.py,a/2/a2027c4c3af278934dafdb4a641e3f65e648e9d1
+B
+common/services.py,1/3/13442ff2c318f6c4daec6494e860f32f8de076cf

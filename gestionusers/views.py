@@ -1,4 +1,3 @@
-from django.contrib.auth.models import AnonymousUser
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
@@ -122,18 +121,19 @@ class UserViewSet(ViewSet):
             data['super_doctor_id'] = request.user.id
             data['is_super'] = False
         self.fields = self.service.fields
+        print(request.data.get('loginNumber'))
+        user = UserService().filter_by({'loginNumber': request.data.get('loginNumber')}).first()
+        print(user)
+        if user is not None and user.is_active:
+            return Response(data={'created': True}, status=HTTP_401_UNAUTHORIZED)
         for i in self.fields:
             data[i] = request.data.get(i)
-        if request.data.get('typeUser') != 'superdoctor':
-            localisation = self.localisation_service.filter_by(request.data.get('localisation')).first()
-            if localisation is None:
-                localisation = self.localisation_service.create(data=request.data.get('localisation'))
-            data['localisation_id'] = localisation.id
-        user = self.service.filter_by({'loginNumber': request.data.get('loginNumber')}).first()
+        localisation = self.localisation_service.filter_by(request.data.get('localisation')).first()
+        if localisation is None:
+            localisation = self.localisation_service.create(data=request.data.get('localisation'))
+        data['localisation_id'] = localisation.id
         data['is_active'] = True
-        if user is not None:
-            if user.is_active:
-                return Response(data={'created': True}, status=HTTP_401_UNAUTHORIZED)
+        if user is not None and not user.is_active:
             self.service.put(_id=user.id, data=data)
         else:
             user = self.service.create(data)
