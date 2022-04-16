@@ -156,5 +156,5 @@ ParentSerializer = create_model_serializer(model=Parent, name='ParentSerializer'
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)
 DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label,
                                            options={'fields': ['id', 'name', 'loginNumber', 'localisation', 'telephone',
-                                                               'typeUser', 'email', 'password'],
+                                                               'typeUser', 'email', 'password', 'speciality'],
                                                     'depth': 1})

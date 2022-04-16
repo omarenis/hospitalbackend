@@ -54,6 +54,18 @@ class SuperviseService(Service):
     def __init__(self, repository=Repository(model=Supervise)):
         super().__init__(repository, fields=SUPERVICE_FIELDS)
 
+    def create(self, data: dict):
+        supervise = super().create(data)
+        if isinstance(supervise, Exception):
+            return supervise
+        try:
+            patient = Patient.objects.get(id=data['patient_id'])
+            patient.isSupervised = True
+            patient.save()
+        except Exception as exception:
+            return exception
+        return supervise
+
 
 class ConsultationService(Service):
     def __init__(self, repository=Repository(model=Consultation)):

@@ -15,14 +15,14 @@ def return_serialized_data_or_error_response(_object, serializer_class, response
 
 def extract_data_with_validation(request, fields: dict) -> dict or Exception:
     data = request.data
+    print(request.content_type)
     if request.content_type != 'application/json':
         data += request.files
     output = {}
     for i in data:
         if fields.get(i) is None:
             return Exception(f'{i} is not an attribute for the model')
-        value = data.get(i) if fields[i].get('type') == 'file' or fields[i].get('type') == 'image' \
-            else request.data.get(i)
+        value = data.get(i)
         if value is None and fields[i]['required']:
             return Exception(f'{i} is required')
         else:
@@ -36,7 +36,6 @@ def extract_get_data(request):
         try:
             output[i] = int(request.GET.get(i)) if request.GET.get(i).find('.') == -1 else float(request.GET.get(i))
         except Exception as exception:
-            print(exception)
             if request.GET.get(i) == 'true' or request.GET.get(i) == 'false':
                 output[i] = request.GET.get(i) == 'true'
             else:
@@ -69,24 +68,21 @@ class ViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        if request.content_type == 'application/json':
+        if request.content_type != 'application/json':
             data += request.files
         output = {}
         for i in data:
             if self.fields.get(i) is None:
                 return Response(data={'error': f'{i} is not an attribute for the model'}, status=HTTP_400_BAD_REQUEST)
-            value = data.get(i) if self.fields[i].get('type') == 'file' or self.fields[i].get('type') == 'image' \
-                else request.data.get(i)
-            if value is None and self.fields[i]['required']:
+            if data.get(i) is None and self.fields[i]['required']:
                 return Response(data={'error': f'{i} is required'}, status=HTTP_400_BAD_REQUEST)
-            output[i] = value
+            output[i] = data.get(i)
             if isinstance(data, Exception):
                 return Response(data={'error': str(data)}, status=HTTP_400_BAD_REQUEST)
         _object = self.service.create(data)
         if isinstance(_object, Exception):
             return Response(data={"error": str(_object)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
-        output['id'] = _object.id
-        return return_serialized_data_or_error_response(_object=output, serializer_class=self.serializer_class,
+        return return_serialized_data_or_error_response(_object=_object, serializer_class=self.serializer_class,
                                                         response_code=HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None, *args, **kwargs):

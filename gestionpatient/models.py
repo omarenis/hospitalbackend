@@ -1,5 +1,7 @@
 from django.db.models import BooleanField, CASCADE, DateField, DateTimeField, ForeignKey, ManyToManyField, Model, \
-    OneToOneField, TextField
+    OneToOneField, TextField, FloatField, __all__
+from rest_framework.serializers import ModelSerializer
+
 from common.models import create_model_serializer
 import django.utils.timezone as timezone
 from gestionusers.models import PersonSerializer
@@ -12,7 +14,10 @@ class Patient(Model):
     name: TextField = TextField(null=False)
     familyName: TextField = TextField(null=False)
     birthdate: DateField = DateField(null=False)
-    sick: BooleanField = BooleanField(default=False, null=False)
+    sick: BooleanField = BooleanField(default=None, null=True)
+    scoreParent = FloatField(default=0, null=False)
+    scoreTeacher = FloatField(default=0, null=False)
+    isSupervised = BooleanField(default=False, null=False)
 
     class Meta:
         db_table = 'patients'
@@ -47,15 +52,23 @@ class Diagnostic(Model):
         db_table = 'diagnostics'
 
 
-SuperviseSerializer = create_model_serializer(model=Supervise, app_label=app_label, name='SuperviseSerializer')
+# SuperviseSerializer = create_model_serializer(model=Supervise, app_label=app_label, name='SuperviseSerializer')
+class SuperviseSerializer(ModelSerializer):
+
+    class Meta:
+        model = Supervise
+        fields = "__all__"
+
+
 PatientGetSerializer = create_model_serializer(model=Patient, name='PatientGetSerializer', app_label=app_label,
                                                options={
-                                                   'fields': 'all'
+                                                   'fields': "__all__"
                                                })
 PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializer', app_label=app_label, options={
     'fields': ['id', 'name', 'familyName', 'birthdate', 'parent', 'behaviortroubleparent',
                'impulsivitytroubleparent', 'learningtroubleparent', 'anxitytroubleparent',
-               'somatisationtroubleparent', 'hyperactivitytroubleparent', 'extratroubleparent', 'supervise', 'sick'],
+               'somatisationtroubleparent', 'hyperactivitytroubleparent', 'extratroubleparent', 'supervise', 'sick',
+               'scoreParent', 'scoreTeacher', 'isSupervised'],
     'depth': 1
 }, fields={
     'supervise': SuperviseSerializer(read_only=True)
@@ -63,7 +76,7 @@ PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializ
 
 DiagnosticSerializer = create_model_serializer(model=Diagnostic, name='DiagnosticSerializer', app_label=app_label)
 
-ConsultationSerilaizer = create_model_serializer(model=Consultation, name='ConsultationSerilaizer', fields={
+ConsultationSerializer = create_model_serializer(model=Consultation, name='ConsultationSerializer', fields={
     'parent': PersonSerializer(read_only=True),
     'doctor': PersonSerializer(read_only=True),
     'diagnostic': PersonSerializer(read_only=True)

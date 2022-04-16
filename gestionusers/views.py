@@ -168,6 +168,7 @@ class UserViewSet(ViewSet):
             self.serializer_class = DoctorSerializer
             self.service = DoctorService()
             filter_data['is_super'] = False
+            filter_data['super_doctor_id'] = request.user.id
         for i in request.query_params:
             if self.service.fields.get(i) is None:
                 return Response(data={'error': f'{i} is not an attribute for the user model'})
