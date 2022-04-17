@@ -16,13 +16,43 @@ Including another URLconf
 from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import include, path
+from rest_framework.decorators import permission_classes, api_view
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_204_NO_CONTENT
+from chat.models import Message
+from gestionusers.models import Doctor, School, Parent, User, Teacher
+from gestionpatient.models import Patient
 
 
 def home(request):
     return HttpResponse(b"hello world")
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser, IsAuthenticated])
+def clear_data(request):
+    try:
+        for i in Patient.objects.all():
+            i.delete()
+        print(Patient.objects.all())
+        for i in Doctor.objects.all():
+            i.delete()
+        for i in School.objects.all():
+            i.delete()
+        for i in Message.objects.all():
+            i.delete()
+        for i in Parent.objects.all():
+            i.delete()
+        for i in Teacher.objects.all():
+            i.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+    except Exception as exception:
+        return Response({'message': str(exception)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 urlpatterns = [
+    path('api/delete_data', clear_data),
     path('api/', home),
     path('admin/', admin.site.urls),
     path('api/persons', include('gestionusers.views')),
