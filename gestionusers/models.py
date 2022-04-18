@@ -50,7 +50,7 @@ class PersonManager(UserManager):
                 'localisation_id': localisation_id,
                 'username': name + ' ' + loginNumber
             }
-            if typeUser == 'superdoctor' or typeUser == 'admin' or typeUser == 'school':
+            if typeUser == 'admin' or typeUser == 'school':
                 return super().create(name=name, loginNumber=loginNumber, telephone=telephone, password=password,
                                       typeUser=typeUser, email=email, localisation_id=localisation_id)
             if familyName is None:
@@ -59,7 +59,7 @@ class PersonManager(UserManager):
                 user = Parent(**data)
             elif typeUser == 'superdoctor':
                 data['is_super'] = True
-                data['speciality'] = None
+                data['speciality'] = ''
                 user = Doctor(**data)
             elif typeUser == 'doctor':
                 if speciality is None:
@@ -69,6 +69,7 @@ class PersonManager(UserManager):
                 data['speciality'] = speciality
                 data['is_super'] = is_super
                 data['super_doctor_id'] = super_doctor_id
+                data['typeUser'] = 'superdoctor'
                 user = Doctor(**data)
             elif typeUser == 'teacher':
                 user = Teacher(**data)
@@ -76,10 +77,12 @@ class PersonManager(UserManager):
                 raise AttributeError('user must be parent, teacher or doctor')
             random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=1258)) if not is_active else \
                 password
+            print(user)
             user.set_password(random_str)
             user.save()
             return user
         except Exception as exception:
+            print(exception)
             return exception
 
 
@@ -108,7 +111,7 @@ PARENT_FIELDS = {}
 DOCTOR_FIELDS = {
     'is_super': BooleanField(null=False, default=False),
     'speciality': TextField(null=False),
-    'super_doctor_id': BigIntegerField(null=False)
+    'super_doctor_id': BigIntegerField(null=True)
 }
 TEACHER_FIELDS = {}
 

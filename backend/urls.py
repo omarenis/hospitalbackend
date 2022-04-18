@@ -35,7 +35,6 @@ def clear_data(request, *args, **kwargs):
     try:
         for i in Patient.objects.all():
             i.delete()
-        print(Patient.objects.all())
         for i in Doctor.objects.all():
             i.delete()
         for i in School.objects.all():

@@ -110,7 +110,7 @@ class UserViewSet(ViewSet):
             if request.data.get('school_id') is None:
                 return Response(data={'error', 'school is required for teacher'}, status=HTTP_400_BAD_REQUEST)
             data['school_id'] = request.user.id
-        if request.user.typeUser == 'admin' and request.data.get('typeUser') == 'superdoctor':
+        elif request.user.typeUser == 'admin' and request.data.get('typeUser') == 'superdoctor':
             self.service = DoctorService()
             self.serializer_class = DoctorSerializer
             data['is_super'] = True
@@ -121,9 +121,7 @@ class UserViewSet(ViewSet):
             data['super_doctor_id'] = request.user.id
             data['is_super'] = False
         self.fields = self.service.fields
-        print(request.data.get('loginNumber'))
         user = UserService().filter_by({'loginNumber': request.data.get('loginNumber')}).first()
-        print(user)
         if user is not None and user.is_active:
             return Response(data={'created': True}, status=HTTP_401_UNAUTHORIZED)
         for i in self.fields:
