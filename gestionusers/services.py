@@ -63,7 +63,6 @@ class LoginSignUpService(object):
     def login(self, login_number: str, password: str):
         user = self.user_service.filter_by({'loginNumber': login_number}).first()
         if user is not None and user.is_active:
-            print(user.localisation_id)
             if user.check_password(password) and (user.localisation_id is not None or user.typeUser == 'admin' or
                                                   user.typeUser == 'superdoctor'):
                 return user

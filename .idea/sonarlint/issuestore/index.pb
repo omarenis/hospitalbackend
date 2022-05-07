@@ -17,8 +17,6 @@ G
 patients.csv,f/6/f66ae32f3ba5ab3667611a03a1d1c8a5a23cfbe1
 D
 formteacher/views.py,1/5/1586efc40f4986c11bd0006dd9b7cd0e30079e66
-C
-formparent/views.py,1/5/15f0037355665f20764fe6a9d62a267e7846197b
 <
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
 S
@@ -28,8 +26,12 @@ C
 <
 backend.conf,5/9/593bc4468e7aa774ff4b0232f033b8a67c6d1ce8
 E
-formteacher/models.py,a/1/a10522a44f68e9504280b456db5fd7f3de3d75ff
-D
-formparent/models.py,7/d/7d1578a3027b6a5921063076c674eef4d34ebbf4
-H
-gestionpatient/models.py,b/c/bc17c64f42bc077b17e2207d4b4e6bf630c6a737
+gestionusers/views.py,7/8/78a916d2af46a59c10942e0deb847e488e8422b3
+@
+common/models.py,2/2/2253d0b87a379991f4a9dfb42b6c1d4d930c2644
+?
+backend/urls.py,e/8/e86ee5a9c15adf9e0f1eef0379032fc6cd65bd41
+A
+BasePermission.py,7/4/74587f81cf26072755dffa29b1821dd124bdb267
+?
+common/views.py,a/2/a2027c4c3af278934dafdb4a641e3f65e648e9d1

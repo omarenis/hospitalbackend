@@ -1,25 +1,21 @@
 import enum
 
-from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
-
-from backend.settings import PROJECT_ROOT
 from django.urls import path
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK,\
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK, \
     HTTP_204_NO_CONTENT
+
 from common.views import ViewSet, extract_data_with_validation
 from formparent.services import AnxityTroubleParentService, BehaviorTroubleParentService, ExtraTroubleParentService, \
     HyperActivityTroubleParentService, ImpulsivityTroubleParentService, LearningTroubleParentService, \
     SomatisationTroubleParentService
 from formteacher.services import BehaviorTroubleTeacherService, ExtraTroubleTeacherService, \
     HyperActivityTroubleTeacherService, ImpulsivityTroubleTeacherService, InattentionTroubleTeacherService
-from .models import DiagnosticSerializer, ConsultationSerializer, PatientSerializer, SuperviseSerializer
 from gestionusers.services import PersonService, UserService
+from .models import DiagnosticSerializer, ConsultationSerializer, PatientSerializer, SuperviseSerializer
 from .service import ConsultationService, DiagnosticService, PatientService, SuperviseService
-from AI import FILE, classifier, train
-columns = list(FILE.columns[1:-1])
 
 
 class Quantify(enum.Enum):
@@ -41,15 +37,10 @@ def add_person(data: dict, type_user: str):
 
 
 def add_other_data_to_patient(data: dict, service, patient_id, teacher_id=None):
-    # for i in range(len(columns)):
-    #     if data.get(columns[i]) is not None and self.data_to_predict[i] != Quantify[data.get(columns[i])].value:
-    #         self.data_to_predict[i] = Quantify[data.get(columns[i])].value
-    #
     if teacher_id is not None:
         _object = service.filter_by({'teacher_id': teacher_id, 'patient_id': patient_id}).first()
     else:
         _object = service.filter_by({'patient_id': patient_id}).first()
-    print(_object)
     if _object is not None:
         _object = service.put(data=data, _id=_object.id)
     else:
@@ -83,20 +74,9 @@ class PatientViewSet(ViewSet):
 
     def __init__(self, serializer_class=PatientSerializer, service=PatientService(), **kwargs):
         super().__init__(serializer_class=serializer_class, service=service, **kwargs)
-        self.data_to_predict = [0] * len(list(FILE.columns[1:-1]))
 
     def get_permissions(self):
         return [IsAuthenticated()]
-
-    def save_data_to_csv_file(self):
-        with open(f'{PROJECT_ROOT}/dataset1.csv') as f:
-            string = f"\n{len(f.readlines()) - 1},"
-        for i in range(len(self.data_to_predict)-1):
-            string += f"{self.data_to_predict[i]},"
-        string += f"{self.data_to_predict[-1]}"
-        with open(f"{PROJECT_ROOT}/dataset1.csv", "a") as f:
-            f.write(string)
-        train()
 
     def list(self, request, *args, **kwargs):
         try:
@@ -129,10 +109,11 @@ class PatientViewSet(ViewSet):
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         patient_data = self.service.retrieve(_id=pk)
-        print(patient_data)
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(self.serializer_class(patient_data).data, status=HTTP_200_OK)
+        return Response({**self.serializer_class(patient_data).data,
+                         'school': patient_data.form_set.first().teacher.schoolteacherids.school.name},
+                        status=HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         required_data = {
@@ -155,8 +136,8 @@ class PatientViewSet(ViewSet):
                     'password': ''
                 })
             required_data['parent_id'] = parent.id
-        # train()
         data = extract_data_with_validation(request=request, fields=self.fields)
+        data['parent_id'] = required_data['parent_id']
         if isinstance(data, Exception):
             return Response(data={'error': str(data)}, status=HTTP_400_BAD_REQUEST)
         created = False
@@ -188,18 +169,6 @@ class PatientViewSet(ViewSet):
                         teacher_id=None
                     ).score
                 patient_object.scoreParent /= 10
-            # for i in self.fields:
-            #     if request.data.get(i) is not None and not self.fields[i].get('required') \
-            #             and self.fields[i].get('type') != 'bool' and self.fields[i].get('type') != 'foreign_key':
-            #         print(request.data.get(i))
-            #         if request.user.typeUser == 'teacher':
-            #             add_other_data_to_patient(
-            #                 data=request.data.get(i),
-            #                 service=self.servicesTeacher[i],
-            #                 patient_id=patient_id,
-            #                 teacher_id=request.user.id
-            #             )
-            # self.data_to_predict.append(0)
             if patient_object.scoreTeacher > 0 and patient_object.scoreParent > 0:
                 patient_object.sick = patient_object.scoreParent > 1.5 and patient_object.scoreTeacher > 1.5
             else:

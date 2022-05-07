@@ -1,10 +1,10 @@
 from django.db.models import BooleanField, CASCADE, DateField, DateTimeField, ForeignKey, ManyToManyField, Model, \
     OneToOneField, TextField, FloatField, __all__
 from rest_framework.serializers import ModelSerializer
-
 from common.models import create_model_serializer
 import django.utils.timezone as timezone
 from gestionusers.models import PersonSerializer
+
 app_label = 'gestionpatient'
 doctor_model = 'gestionusers.Doctor'
 
@@ -73,7 +73,6 @@ PatientSerializer = create_model_serializer(model=Patient, name='PatientSerializ
 }, fields={
     'supervise': SuperviseSerializer(read_only=True)
 })
-
 DiagnosticSerializer = create_model_serializer(model=Diagnostic, name='DiagnosticSerializer', app_label=app_label)
 
 ConsultationSerializer = create_model_serializer(model=Consultation, name='ConsultationSerializer', fields={
