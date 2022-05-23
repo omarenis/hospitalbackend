@@ -44,7 +44,8 @@ class TokenViewSet(RestViewSet):
             "userId": user.id,
             "typeUser": user.typeUser,
             "name": user.name,
-            "familyName": user.familyName if hasattr(user, "familyName") else None
+            "familyName": user.familyName if hasattr(user, "familyName") else None,
+            "is_super": user.is_super if hasattr(user, "is_super") else None
         })
 
     def signup(self, request, *args, **kwargs):
@@ -120,6 +121,7 @@ class UserViewSet(ViewSet):
             self.serializer_class = DoctorSerializer
             data['super_doctor_id'] = request.user.id
             data['is_super'] = False
+            data['typeUser'] = 'doctor'
         self.fields = self.service.fields
         user = UserService().filter_by({'loginNumber': request.data.get('loginNumber')}).first()
         if user is not None and user.is_active:

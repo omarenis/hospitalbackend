@@ -55,22 +55,18 @@ def add_other_data_to_patient(data: dict, service, patient_id, teacher_id=None):
 
 
 class PatientViewSet(ViewSet):
-    serviceParent = {
-        'behaviortroubleparent': BehaviorTroubleParentService(),
-        'impulsivitytroubleparent': ImpulsivityTroubleParentService(),
-        'learningtroubleparent': LearningTroubleParentService(),
-        'anxitytroubleparent': AnxityTroubleParentService(),
-        'somatisationtroubleparent': SomatisationTroubleParentService(),
-        'hyperactivitytroubleparent': HyperActivityTroubleParentService(),
-        'extratroubleparent': ExtraTroubleParentService()
-    }
-    servicesTeacher = {
-        'behaviorTroubleTeacher': BehaviorTroubleTeacherService(),
-        'hyperActivityTroubleTeacher': HyperActivityTroubleTeacherService(),
-        'impulsivityTroubleTeacher': ImpulsivityTroubleTeacherService(),
-        'inattentionTroubleTeacher': InattentionTroubleTeacherService(),
-        'extraTroubleTeacher': ExtraTroubleTeacherService()
-    }
+    serviceParent = {'behaviortroubleparent': BehaviorTroubleParentService(),
+                     'impulsivitytroubleparent': ImpulsivityTroubleParentService(),
+                     'learningtroubleparent': LearningTroubleParentService(),
+                     'anxitytroubleparent': AnxityTroubleParentService(),
+                     'somatisationtroubleparent': SomatisationTroubleParentService(),
+                     'hyperactivitytroubleparent': HyperActivityTroubleParentService(),
+                     'extratroubleparent': ExtraTroubleParentService()}
+    servicesTeacher = {'behaviorTroubleTeacher': BehaviorTroubleTeacherService(),
+                       'hyperActivityTroubleTeacher': HyperActivityTroubleTeacherService(),
+                       'impulsivityTroubleTeacher': ImpulsivityTroubleTeacherService(),
+                       'inattentionTroubleTeacher': InattentionTroubleTeacherService(),
+                       'extraTroubleTeacher': ExtraTroubleTeacherService()}
 
     def __init__(self, serializer_class=PatientSerializer, service=PatientService(), **kwargs):
         super().__init__(serializer_class=serializer_class, service=service, **kwargs)
@@ -94,8 +90,8 @@ class PatientViewSet(ViewSet):
                 filter_dictionary[i] = request.query_params.get(i)
 
             output = []
-            pts = self.service.list().distinct() if list(request.GET.keys()) == [] and filter_dictionary == {} \
-                else self.service.filter_by(filter_dictionary)
+            pts = self.service.list().distinct() if list(
+                request.GET.keys()) == [] and filter_dictionary == {} else self.service.filter_by(filter_dictionary)
             if isinstance(pts, QuerySet):
                 for i in pts.distinct():
                     output.append(self.serializer_class(i).data)
@@ -111,30 +107,23 @@ class PatientViewSet(ViewSet):
         patient_data = self.service.retrieve(_id=pk)
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+        medical_teacher_data = None
         return Response({**self.serializer_class(patient_data).data,
                          'school': patient_data.form_set.first().teacher.schoolteacherids.school.name},
                         status=HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        required_data = {
-            'name': request.data.get('name'),
-            'familyName': request.data.get('familyName'),
-            'birthdate': request.data.get('birthdate'),
-        }
+        required_data = {'name': request.data.get('name'), 'familyName': request.data.get('familyName'),
+                         'birthdate': request.data.get('birthdate'), }
         if request.user.typeUser == 'parent':
             required_data['parent_id'] = request.user.id
         else:
             parent_cin = request.data.pop('parentCin')
             parent = UserService().filter_by({'loginNumber': parent_cin}).first()
             if parent is None:
-                parent = UserService().create({
-                    'loginNumber': parent_cin,
-                    'name': '',
-                    'familyName': '',
-                    'typeUser': 'parent',
-                    'telephone': '',
-                    'password': ''
-                })
+                parent = UserService().create(
+                    {'loginNumber': parent_cin, 'name': '', 'familyName': '', 'typeUser': 'parent', 'telephone': '',
+                     'password': ''})
             required_data['parent_id'] = parent.id
         data = extract_data_with_validation(request=request, fields=self.fields)
         data['parent_id'] = required_data['parent_id']
@@ -153,21 +142,16 @@ class PatientViewSet(ViewSet):
             patient_id = patient_object.id
             if request.user.typeUser == 'teacher':
                 for i in self.servicesTeacher:
-                    patient_object.scoreTeacher += add_other_data_to_patient(
-                        data=data.get(i),
-                        service=self.servicesTeacher[i],
-                        patient_id=patient_id,
-                        teacher_id=request.user.id
-                    ).score
+                    patient_object.scoreTeacher += add_other_data_to_patient(data=data.get(i),
+                                                                             service=self.servicesTeacher[i],
+                                                                             patient_id=patient_id,
+                                                                             teacher_id=request.user.id).score
                 patient_object.scoreTeacher /= 10
             else:
                 for i in self.serviceParent:
-                    patient_object.scoreParent = add_other_data_to_patient(
-                        data=data.get(i),
-                        service=self.serviceParent[i],
-                        patient_id=patient_id,
-                        teacher_id=None
-                    ).score
+                    patient_object.scoreParent = add_other_data_to_patient(data=data.get(i),
+                                                                           service=self.serviceParent[i],
+                                                                           patient_id=patient_id, teacher_id=None).score
                 patient_object.scoreParent /= 10
             if patient_object.scoreTeacher > 0 and patient_object.scoreParent > 0:
                 patient_object.sick = patient_object.scoreParent > 1.5 and patient_object.scoreTeacher > 1.5
@@ -219,8 +203,7 @@ consultations, consultation = RenderVousViewSet.get_urls()
 diagnostics, diagnostic = DiagnosticViewSet.get_urls()
 
 urlpatterns = [
-    path('', patients),
-    path('/<int:pk>', patient),
+    path('', patients), path('/<int:pk>', patient),
     path('/supervises', supervises),
     path('/supervises/<int:pk>', supervise),
     path('/consultations', consultations),

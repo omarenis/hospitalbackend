@@ -64,7 +64,7 @@ class LoginSignUpService(object):
         user = self.user_service.filter_by({'loginNumber': login_number}).first()
         if user is not None and user.is_active:
             if user.check_password(password) and (user.localisation_id is not None or user.typeUser == 'admin' or
-                                                  user.typeUser == 'superdoctor'):
+                                                  user.typeUser == 'superdoctor' or user.typeUser == 'doctor'):
                 return user
             elif not user.is_active:
                 return Exception('الحساب غير مفعّل')

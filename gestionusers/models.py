@@ -67,7 +67,7 @@ class PersonManager(UserManager):
                 if super_doctor_id is None:
                     return Exception('doctor must be associated to super doctor')
                 data['speciality'] = speciality
-                data['is_super'] = is_super
+                data['is_super'] = False
                 data['super_doctor_id'] = super_doctor_id
                 data['typeUser'] = 'superdoctor'
                 user = Doctor(**data)
