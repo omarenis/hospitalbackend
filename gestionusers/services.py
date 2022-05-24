@@ -65,6 +65,10 @@ class LoginSignUpService(object):
         if user is not None and user.is_active:
             if user.check_password(password) and (user.localisation_id is not None or user.typeUser == 'admin' or
                                                   user.typeUser == 'superdoctor' or user.typeUser == 'doctor'):
+                if user.typeUser == 'doctor' or user.typeUser == 'superdoctor':
+                    return DoctorService().retrieve(user.id)
+                if user.typeUser == 'parent' or user.typeUser == 'teacher':
+                    return PersonService().retrieve(user.id)
                 return user
             elif not user.is_active:
                 return Exception('الحساب غير مفعّل')
