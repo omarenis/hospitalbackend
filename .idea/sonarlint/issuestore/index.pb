@@ -1,8 +1,6 @@
 
 @
 requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
-@
-abi-contrat.json,7/c/7c00da151585935f631ba41a3d69e75ff11fee73
 <
 contract.bin,b/a/ba9f4ac3e379d17f61246141cb926d8c36611bba
 ;
