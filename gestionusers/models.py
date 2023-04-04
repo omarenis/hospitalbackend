@@ -20,7 +20,7 @@ class UserManager(BaseUserManager):
             'typeUser': typeUser,
             'localisation_id': localisation_id,
             'email': self.normalize_email(email) if email is not None else None,
-            'username': name + ' ' + loginNumber
+            'username': loginNumber
         }
         if typeUser == 'school':
             user = School(**data)
@@ -48,7 +48,7 @@ class PersonManager(UserManager):
                 'address': address,
                 'is_active': is_active,
                 'localisation_id': localisation_id,
-                'username': name + ' ' + loginNumber
+                'username': loginNumber
             }
             if typeUser == 'admin' or typeUser == 'school':
                 return super().create(name=name, loginNumber=loginNumber, telephone=telephone, password=password,
@@ -102,7 +102,6 @@ USER_FIELD = {
     'localisation': ForeignKey(null=True, to='Localisation', on_delete=SET_NULL),
     'objects': PersonManager()
 }
-
 PERSON_FIElDS = {
     'familyName': TextField(null=False, db_column='family_name')
 }
