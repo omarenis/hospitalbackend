@@ -1,6 +1,4 @@
 
-@
-requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
 <
 contract.bin,b/a/ba9f4ac3e379d17f61246141cb926d8c36611bba
 ;
@@ -13,8 +11,6 @@ G
 gestionpatient/tests.py,4/f/4fd2206a1f392709c4c49faba4d6c856617087d7
 <
 patients.csv,f/6/f66ae32f3ba5ab3667611a03a1d1c8a5a23cfbe1
-D
-formteacher/views.py,1/5/1586efc40f4986c11bd0006dd9b7cd0e30079e66
 <
 dataset1.csv,a/1/a11a8373f2b9b9fef34d8dbb4637f1fc6903eb45
 S
@@ -25,8 +21,6 @@ A
 BasePermission.py,7/4/74587f81cf26072755dffa29b1821dd124bdb267
 ?
 common/views.py,a/2/a2027c4c3af278934dafdb4a641e3f65e648e9d1
-K
-formteacher/repositories.py,a/2/a236c22703eeda61fc7984309a5c1c5397ea79e0
 C
 backend/settings.py,e/3/e3b66993770b8bd17727389114408abe2710d4f6
 C
@@ -41,11 +35,11 @@ I
 gestionpatient/service.py,3/d/3dd3198c381b587b9c7dcdb4e360a28151db3608
 ?
 backend/urls.py,e/8/e86ee5a9c15adf9e0f1eef0379032fc6cd65bd41
-E
-gestionusers/views.py,7/8/78a916d2af46a59c10942e0deb847e488e8422b3
 G
 gestionpatient/views.py,e/6/e6ad7b6eb048b6d21e1def1d112d7b7d7cd18aec
 H
 gestionusers/services.py,5/e/5e0e5fe677b0d8632d6d510aff3292fc2fdbb0e1
 F
 formparent/services.py,1/d/1d5426960dce036777f2c15d589bbff26ece586d
+5
+AI.py,e/e/ee5bedac5ba982eafebb0d8b924b00e2718e41e9
